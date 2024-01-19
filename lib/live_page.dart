@@ -1,5 +1,9 @@
 // Flutter imports:
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:lyrics_parser/lyrics_parser.dart';
 import 'package:star/constant.dart';
 
 // Package imports:
@@ -28,6 +32,21 @@ class LivePage extends StatefulWidget {
 
 class LivePageState extends State<LivePage> {
   final liveController = ZegoLiveAudioRoomController();
+  var result;
+  getLyrics() async {
+    final file = File('../assets/See.lcr');
+
+    final parser = LyricsParser.fromFile(file);
+    await parser.ready();
+    result = await parser.parse();
+    log(result.lyricList.toString());
+  }
+
+  @override
+  void initState() {
+    getLyrics();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,17 +131,20 @@ class LivePageState extends State<LivePage> {
   }
 
   Widget foreground(BoxConstraints constraints) {
-    return Container();
+    if (result != null) {
+      return simpleMediaPlayer(
+        canControl: widget.isHost,
+        liveController: liveController,
+        text: result,
+      );
+    } else {
+      return Container();
+    }
 
-    return simpleMediaPlayer(
-      canControl: widget.isHost,
-      liveController: liveController,
-    );
-
-    return advanceMediaPlayer(
-      constraints: constraints,
-      canControl: widget.isHost,
-    );
+    // return advanceMediaPlayer(
+    //   constraints: constraints,
+    //   canControl: widget.isHost,
+    // );
   }
 
   Widget background() {
@@ -133,7 +155,7 @@ class LivePageState extends State<LivePage> {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.fill,
-              image: Image.asset('assets/images/background.png').image,
+              image: Image.asset('assets/images/karaoke_logo.jpeg').image,
             ),
           ),
         ),

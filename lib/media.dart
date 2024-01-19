@@ -9,6 +9,7 @@ import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_aud
 Widget advanceMediaPlayer({
   required BoxConstraints constraints,
   required bool canControl,
+  required String url,
 }) {
   const padding = 20;
   final playerSize =
@@ -30,6 +31,7 @@ Widget advanceMediaPlayer({
 Widget simpleMediaPlayer({
   required bool canControl,
   required ZegoLiveAudioRoomController? liveController,
+  required text,
 }) {
   return canControl
       ? Positioned(
@@ -38,59 +40,65 @@ Widget simpleMediaPlayer({
           child: ValueListenableBuilder<ZegoUIKitMediaPlayState>(
             valueListenable: ZegoUIKit().getMediaPlayStateNotifier(),
             builder: (context, playState, _) {
-              return Row(
+              return Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      if (ZegoUIKitMediaPlayState.playing == playState) {
-                        liveController?.media.pause();
-                      } else if (ZegoUIKitMediaPlayState.pausing == playState) {
-                        liveController?.media.resume();
-                      } else {
-                        liveController?.media.pickFile().then((files) {
-                          if (files.isEmpty) {
-                            debugPrint('files is empty');
-                          } else {
-                            final mediaFile = files.first;
-                            var targetPathOrURL = mediaFile.path ?? '';
-                            liveController.media.play(
-                              filePathOrURL: targetPathOrURL,
-                            );
-                          }
-                        });
-
-                        // liveController?.media.play(filePathOrURL:'https://xxx.com/xxx.mp3');
-                      }
-                    },
-                    child: Icon(
-                      ZegoUIKitMediaPlayState.playing == playState
-                          ? Icons.pause_circle
-                          : Icons.play_circle,
-                      color: Colors.white,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      liveController?.media.stop();
-                    },
-                    child: const Icon(
-                      Icons.stop_circle,
-                      color: Colors.red,
-                    ),
-                  ),
-                  ValueListenableBuilder<bool>(
-                    valueListenable: ZegoUIKit().getMediaMuteNotifier(),
-                    builder: (context, isMute, _) {
-                      return ElevatedButton(
+                 
+                  for (var i = 0; i < text.lyricList.lenght; i++)
+                    Text(text.lyricList[i]),
+                  Row(
+                    children: [
+                      ElevatedButton(
                         onPressed: () {
-                          liveController?.media.muteLocal(!isMute);
+                          if (ZegoUIKitMediaPlayState.playing == playState) {
+                            liveController?.media.pause();
+                          } else if (ZegoUIKitMediaPlayState.pausing ==
+                              playState) {
+                            liveController?.media.resume();
+                          } else {
+                            liveController?.media.pickFile().then((files) {
+                              if (files.isEmpty) {
+                                debugPrint('files is empty');
+                              } else {
+                                final mediaFile = files.first;
+                                var targetPathOrURL = mediaFile.path ?? '';
+                                liveController.media.play(
+                                  filePathOrURL: targetPathOrURL,
+                                );
+                              }
+                            });
+                          }
                         },
                         child: Icon(
-                          isMute ? Icons.volume_off : Icons.volume_up,
+                          ZegoUIKitMediaPlayState.playing == playState
+                              ? Icons.pause_circle
+                              : Icons.play_circle,
                           color: Colors.white,
                         ),
-                      );
-                    },
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          liveController?.media.stop();
+                        },
+                        child: const Icon(
+                          Icons.stop_circle,
+                          color: Colors.red,
+                        ),
+                      ),
+                      ValueListenableBuilder<bool>(
+                        valueListenable: ZegoUIKit().getMediaMuteNotifier(),
+                        builder: (context, isMute, _) {
+                          return ElevatedButton(
+                            onPressed: () {
+                              liveController?.media.muteLocal(!isMute);
+                            },
+                            child: Icon(
+                              isMute ? Icons.volume_off : Icons.volume_up,
+                              color: Colors.white,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               );

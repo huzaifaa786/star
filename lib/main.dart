@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:star/constant.dart';
+import 'package:star/home_page.dart';
 import 'package:star/live_page.dart';
 import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_audio_room.dart';
 
@@ -43,7 +44,6 @@ class _MyAppState extends State<MyApp> {
         return Stack(
           children: [
             child!,
-
             /// support minimizing
             ZegoUIKitPrebuiltLiveAudioRoomMiniOverlayPage(
               contextQuery: () {
@@ -53,7 +53,7 @@ class _MyAppState extends State<MyApp> {
           ],
         );
       },
-      home: HomePage(),
+      home: KaraokeAppHomePage(),
     );
   }
 }
@@ -114,9 +114,10 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               style: buttonStyle,
               onPressed: () {
+                
+                ZegoLiveAudioRoomController();
                 if (ZegoLiveAudioRoomController().minimize.isMinimizing) {
-                  /// when the application is minimized (in a minimized state),
-                  /// disable button clicks to prevent multiple PrebuiltAudioRoom components from being created.
+                 
                   return;
                 }
 
