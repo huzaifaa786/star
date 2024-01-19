@@ -34,12 +34,14 @@ class LivePageState extends State<LivePage> {
   final liveController = ZegoLiveAudioRoomController();
   var result;
   getLyrics() async {
-    final file = File('../assets/See.lcr');
+    // final file = File('../assets/See.lcr');
 
-    final parser = LyricsParser.fromFile(file);
+    final parser = LyricsParser(normalLyric);
     await parser.ready();
     result = await parser.parse();
-    log(result.lyricList.toString());
+    
+  
+    setState(() {});
   }
 
   @override

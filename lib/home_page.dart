@@ -20,18 +20,11 @@ class _KaraokeAppHomePageState extends State<KaraokeAppHomePage> {
   final layoutValueNotifier =
       ValueNotifier<LayoutMode>(LayoutMode.defaultLayout);
   var result;
-  getLyrics() async {
-    final file = File('./See.lcr');
 
-    final parser = LyricsParser.fromFile(file);
-    await parser.ready();
-    result = await parser.parse();
-    print(result.lyricList.toString());
-  }
 
   @override
   void initState() {
-    getLyrics();
+ 
     super.initState();
   }
 
