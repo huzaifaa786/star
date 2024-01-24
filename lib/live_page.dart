@@ -1,13 +1,11 @@
 // Flutter imports:
-import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:lyrics_parser/lyrics_parser.dart';
 import 'package:star/constant.dart';
+import 'package:zego_express_engine/zego_express_engine.dart';
 
 // Package imports:
-import 'package:zego_uikit/zego_uikit.dart';
 import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_audio_room.dart';
 
 // Project imports:
@@ -34,19 +32,31 @@ class LivePageState extends State<LivePage> {
   final liveController = ZegoLiveAudioRoomController();
   var result;
   getLyrics() async {
-    // final file = File('../assets/See.lcr');
-
     final parser = LyricsParser(normalLyric);
     await parser.ready();
     result = await parser.parse();
-    
-  
+
     setState(() {});
+  }
+
+  Future<ZegoCopyrightedMusic?> createCopyrightedMusic() async {
+    return await ZegoExpressEngine.instance.createCopyrightedMusic();
+  }
+
+  Future<ZegoRoomLoginResult> loginRoom(String roomID, ZegoUser user,
+      {ZegoRoomConfig? config}) async {
+    return await ZegoExpressEngine.instance
+        .loginRoom(roomID, user, config: config);
+  }
+
+  initCopyrightedMusic(ZegoCopyrightedMusicConfig config) async {
+    return await ZegoCopyrightedMusic;
   }
 
   @override
   void initState() {
     getLyrics();
+    createCopyrightedMusic();
     super.initState();
   }
 
@@ -133,15 +143,15 @@ class LivePageState extends State<LivePage> {
   }
 
   Widget foreground(BoxConstraints constraints) {
-    if (result != null) {
+   
       return simpleMediaPlayer(
         canControl: widget.isHost,
         liveController: liveController,
         text: result,
       );
-    } else {
-      return Container();
-    }
+    // } else {
+    //   return Container();
+    // }
 
     // return advanceMediaPlayer(
     //   constraints: constraints,
@@ -157,7 +167,7 @@ class LivePageState extends State<LivePage> {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.fill,
-              image: Image.asset('assets/images/karaoke_logo.jpeg').image,
+              image: Image.asset('assets/images/background.jpg').image,
             ),
           ),
         ),
@@ -168,7 +178,7 @@ class LivePageState extends State<LivePage> {
               'Live Audio Room',
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Color(0xff1B1B1B),
+                color: Colors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),

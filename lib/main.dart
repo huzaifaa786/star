@@ -1,14 +1,15 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:star/constant.dart';
 import 'package:star/home_page.dart';
 import 'package:star/live_page.dart';
 import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_audio_room.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
   final navigatorKey = GlobalKey<NavigatorState>();
   ZegoUIKit().initLog().then((value) {
     runApp(MyApp(
@@ -31,6 +32,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,19 +47,6 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      builder: (BuildContext context, Widget? child) {
-        return Stack(
-          children: [
-            child!,
-            /// support minimizing
-            ZegoUIKitPrebuiltLiveAudioRoomMiniOverlayPage(
-              contextQuery: () {
-                return widget.navigatorKey.currentState!.context;
-              },
-            ),
-          ],
-        );
-      },
       home: KaraokeAppHomePage(),
     );
   }
@@ -114,10 +108,8 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               style: buttonStyle,
               onPressed: () {
-                
                 ZegoLiveAudioRoomController();
                 if (ZegoLiveAudioRoomController().minimize.isMinimizing) {
-                 
                   return;
                 }
 

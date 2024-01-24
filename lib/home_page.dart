@@ -1,10 +1,12 @@
-import 'dart:io';
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:lyrics_parser/lyrics_parser.dart';
 import 'package:star/constant.dart';
 import 'package:star/live_page.dart';
+import 'package:star/solo/lyrics.dart';
+import 'package:star/solo/solo_singing.dart';
 
 class KaraokeAppHomePage extends StatefulWidget {
   KaraokeAppHomePage({Key? key}) : super(key: key);
@@ -84,11 +86,7 @@ class _KaraokeAppHomePageState extends State<KaraokeAppHomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LivePage(
-          roomID: roomID,
-          isHost: isHost,
-          layoutMode: layoutValueNotifier.value,
-        ),
+        builder: (context) => LyricsView()
       ),
     );
   }

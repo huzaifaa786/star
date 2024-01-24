@@ -33,6 +33,7 @@ Widget simpleMediaPlayer({
   required ZegoLiveAudioRoomController? liveController,
   required text,
 }) {
+
   return canControl
       ? Positioned(
           bottom: 60,
