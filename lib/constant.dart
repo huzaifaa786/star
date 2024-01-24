@@ -14,6 +14,101 @@ enum LayoutMode {
   fourPeoples,
 }
 
+final String lyricsContent = '''[00:10.27]Dass Putt Tera Head Down Kaston
+[00:13.03]Changa Bhala Hassda Si Maun Kaston
+[00:15.54]Aa Jehde Darwaje Vich Board Chakki Khade Aa
+[00:18.30]Main Changi Tarah Jaanda Aa Kaun Kaston
+[00:21.03]Kuch Aithe Chandi Chamkauna Chaunde Ne
+[00:23.53]Kuch Tainu Fadd Thalle Launa Chaunde Ne
+[00:26.28]Kuch Ek Aaye Aithe Bukhe Fame De
+[00:28.79]Naam Laike Tera Agge Aune Chaunde Ne
+[00:31.54]Museebat Taan Marda Te Paindi Rehndi Ae
+[00:34.03]Dabi Na Tu Duniya Sawaad Laindi Ae
+[00:36.78]Naale Jehde Raste Te Tu Turreyan
+[00:39.78]Aithe Badnaami High Rate Milugi
+[00:42.27]Nit Controversy Create Milugi
+[00:45.03]Dharma De Naam Te Debate Milugi
+[00:47.55]Sach Bolega Taan Milu 295
+[00:50.28]Je Karega Tarakki Putt Hate Milugi
+[00:52.78]Nit Controversy Create Milugi
+[00:55.53]Dharma De Naam Te Debate Milugi
+[00:58.28]Sach Bolega Taan Milu 295
+[01:00.77]Je Karega Tarakki Putt Hate Milugi
+[01:03.78]Ajj Kayi Bachaun Sabyachar Jutt Ke
+[01:06.06]Jana Khana Dinda Ae Vichar Uth Ke
+[01:08.79]Injh Lagge Rabb Jivein Hath Khade Kar Gaya
+[01:11.54]Padha Jadon Subah Akhbar Uth Ke
+[01:14.27]Chup Reh Oh Puttran Ni Bhed Kholide
+[01:16.78]Leader Ne Aithe Haqdar Goli De
+[01:19.53]Ho Jinna De Jawaka De Na John Te Steve Aa
+[01:22.03]Rakhe Bane Phirde Oh Maa Boli De
+[01:24.78]Oh Jhooth Mainu Aithon De Fact Ae Vi Ne
+[01:27.30]Chor Bande Auron De Samajsevi Ne
+[01:30.03]Sach Wala Baana Paa Jo Log Lutt’de
+[01:33.03]Sajja Enna Nu Vi Chheti Mate Milugi
+[01:35.54]Nit Controversy Create Milugi
+[01:38.28]Dharma De Naam Te Debate Milugi
+[01:40.78]Sach Bolega Taan Milu 295
+[01:43.53]Je Karega Tarakki Putt Hate Milugi
+[01:46.28]Nit Controversy Create Milugi
+[01:48.78]Dharma De Naam Te Debate Milugi
+[01:51.53]Sach Bolega Taan Milu 295
+[01:54.29]Je Karega Tarakki Putt Hate Milugi
+[01:56.79]Oh Lok Wadde Maarde Aa Bhare Rukhan Te
+[01:59.28]Minta Vich Pahuch Jaande
+[02:01.79]Maa’wan Kukha Te
+[02:02.53]Kaun Kutta Kaun Dalla Kanjar Ae Kaun
+[02:04.78]Aithe Certificate Den Facebook’an Te
+[02:07.46]Leader Brown De Gaya Aata Enna Nu
+[02:10.93]Vote’an Laike Maarde Chapata Enna Nu
+[02:13.31]Pata Nahi Zameer Ohdon Kithe Hundi Ae
+[02:15.55]Saale Bolde Ni Sharam Da Ghata Enna Nu
+[02:18.04]Digde Nu Den Log Taali Rakhte
+[02:21.06]Oh Kadhde Ki Gaala Aithe Dhadi Rakh Ke
+[02:23.54]Oh Teri Atte Ohdi Maa Ch Fark Ae Ki
+[02:26.07]Akkal Ehna Nu Thodi Late Milugi
+[02:28.79]Nit Controversy Create Milugi
+[02:31.54]Dharma De Naam Te Debate Milugi
+[02:34.29]Sach Bolega Taan Milu 295
+[02:37.05]Je Karega Tarakki Putt Hate Milugi
+[02:39.79]Tu Hunn Tak Agge Tere Dum Karke
+[02:42.29]Aithe Photo Ni Khichaunda
+[02:43.54]Koyi Chamm Karke
+[02:45.05]Kaun Kinna Rabb Ch Yakeen Rakhda
+[02:47.55]Lok Karde Ae Judge Ohde Kamm Karke
+[02:50.05]Tu Jhukeya Zaroor Hoya Kodda Taan Nahi
+[02:52.80]Pagg Tere Sirr Te Tu Road’an Taan Nahi
+[02:55.29]Ik Gall Pooch Enna Thekedar’an Nu
+[02:58.05]Sadda Vi Ae Panth Kalla Thodda Taan Ni
+[03:00.79]Oh Gandiyan Siyasatan Nu Dilon Kadh Do
+[03:03.54]Ho Kise Nu Taan Guru Ghar Jogga Chhad Do
+[03:06.29]Ho Kise Bache Sir Nahio Case Labhne
+[03:08.79]Nai Taan Thonnu Chheti Aisi Date Milugi
+[03:11.57]Nit Controversy Create Milugi
+[03:14.05]Dharma De Naam Te Debate Milugi
+[03:16.80]Sach Bolega Taan Milu 295
+[03:19.31]Je Karega Tarakki Putt Hate Milugi
+[03:22.54]Media Kayi Bann Baithe Ajj De Gawaar
+[03:25.04]Ikko Jhooth Bolde Aa Oh Vi Baar Baar
+[03:27.56]Baith Ke Jananiya Naal Karde Aa Chugliyan
+[03:30.30]Te Sudha Naam Rakhde Aa Judge Da Vichar
+[03:32.79]Shaam Te Sawere Paalde Vivad Ne
+[03:35.55]Aivein Tere Naal Karde Fasaad Ne
+[03:38.30]24 Ghante Naale Neend De Prahune Nu
+[03:41.05]Naale Ohde Kalle Kalle Geet Yaad Ne
+[03:43.55]Bhavein Aukhi Hoyi Ae Crowd Tere Te
+[03:46.29]Bolde Ne Aivein Saale Loud Tere Te
+[03:49.04]Par Ik Gall Rakhi Yaad Puttra
+[03:51.54]Aaha Bapu Tera Bada Aa Proud Tere Te
+[03:54.30]Tu Dabb Gaya Duniya Ne Veham Paaleya
+[03:56.80]Uth Putt Jhoteya Oye Moose Waleya
+[03:59.54]Je Aivein Reha Geetan Vich Sach Bolda
+[04:02.29]Aaun Wali Peedhi Educate Milugi
+[04:04.83]Nit Controversy Create Milugi
+[04:07.55]Dharma De Naam Te Debate Milugi
+[04:10.30]Sach Bolega Taan Milu 295
+[04:12.80]Je Karega Tarakki Putt Hate Milugi''';
+
 final normalLyric = """[ti:If I Didn't Love You]
 [ar:Jason Aldean/Carrie Underwood]
 [al:If I Didn't Love You]
@@ -103,6 +198,7 @@ final normalLyric = """[ti:If I Didn't Love You]
 [03:06.56]If I didn't love you
 [03:09.07]If I didn't love you
 [03:11.67]If I didn't love you""";
+
 extension LayoutModeExtension on LayoutMode {
   String get text {
     final mapValues = {

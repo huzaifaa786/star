@@ -1,5 +1,7 @@
 // Flutter imports:
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lyrics_parser/lyrics_parser.dart';
 import 'package:star/constant.dart';
@@ -30,17 +32,65 @@ class LivePage extends StatefulWidget {
 
 class LivePageState extends State<LivePage> {
   final liveController = ZegoLiveAudioRoomController();
+  String _currentLyrics = '';
+  ZegoMediaPlayer? mediaPlayer;
+  ZegoEngineProfile profile = ZegoEngineProfile(
+    653933933,
+    ZegoScenario.Karaoke,
+    appSign: "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40",
+  );
   var result;
-  getLyrics() async {
-    final parser = LyricsParser(normalLyric);
-    await parser.ready();
-    result = await parser.parse();
 
-    setState(() {});
+  void initZego() async {
+    await ZegoExpressEngine.createEngineWithProfile(profile);
+    var parser = LyricsParser(lyricsContent);
+    final result = await parser.parse();
+    ZegoExpressEngine.instance;
+    final lyrics = await parseLyrics(result.lyricList);
+    mediaPlayer = await ZegoExpressEngine.instance.createMediaPlayer();
+    if (mediaPlayer != null) {
+      await mediaPlayer!
+          .loadResource("https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
+          .then((ZegoMediaPlayerLoadResourceResult result) {
+        if (result.errorCode == 0) {
+          playMusicAndSyncLyrics(mediaPlayer!, lyrics);
+        } else {
+          // loadResource errorcode: errorcode
+        }
+      });
+    } else {}
   }
 
-  Future<ZegoCopyrightedMusic?> createCopyrightedMusic() async {
-    return await ZegoExpressEngine.instance.createCopyrightedMusic();
+  Future<Map<Duration, String>> parseLyrics(lyrics) async {
+    Map<Duration, String> lyricsTimingMap = {};
+    for (final lcr in lyrics) {
+      Duration timestamp = Duration(
+          milliseconds: int.parse(lcr.startTimeMillisecond.toString()));
+      lyricsTimingMap[timestamp] = lcr.content;
+    }
+    return lyricsTimingMap;
+  }
+
+  void playMusicAndSyncLyrics(ZegoMediaPlayer player, lyricsTimingMap) {
+    player.start();
+    // _startSinging();
+    Timer.periodic(const Duration(milliseconds: 100), (Timer t) {
+      player.getCurrentProgress().then((currentPosition) {
+        Duration currentDuration = Duration(milliseconds: currentPosition);
+
+        var previousTimestamps =
+            lyricsTimingMap.keys.where((k) => k as Duration <= currentDuration);
+
+        if (previousTimestamps.isNotEmpty) {
+          Duration latestTimestamp = previousTimestamps
+              .reduce((Duration a, Duration b) => a > b ? a : b);
+
+          setState(() {
+            _currentLyrics = lyricsTimingMap[latestTimestamp] ?? '';
+          });
+        }
+      });
+    });
   }
 
   Future<ZegoRoomLoginResult> loginRoom(String roomID, ZegoUser user,
@@ -49,14 +99,9 @@ class LivePageState extends State<LivePage> {
         .loginRoom(roomID, user, config: config);
   }
 
-  initCopyrightedMusic(ZegoCopyrightedMusicConfig config) async {
-    return await ZegoCopyrightedMusic;
-  }
-
   @override
   void initState() {
-    getLyrics();
-    createCopyrightedMusic();
+    initZego();
     super.initState();
   }
 
@@ -143,12 +188,33 @@ class LivePageState extends State<LivePage> {
   }
 
   Widget foreground(BoxConstraints constraints) {
-   
-      return simpleMediaPlayer(
-        canControl: widget.isHost,
-        liveController: liveController,
-        text: result,
-      );
+    return Positioned(
+        top: 290,
+        right: 10,
+        child: Column(
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: Text(
+                _currentLyrics,
+                style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            MaterialButton(child: Text('STOP',style: TextStyle(color: Colors.white,fontSize: 24),), onPressed: () async {
+              await ZegoExpressEngine.instance.destroyMediaPlayer(mediaPlayer!).then((value) => null);
+              setState(() {
+                
+              });
+            })
+          ],
+        ));
     // } else {
     //   return Container();
     // }
