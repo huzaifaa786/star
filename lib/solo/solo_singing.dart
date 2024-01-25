@@ -1,131 +1,133 @@
-// import 'dart:math';
+import 'dart:math';
 
-// import 'package:flutter/material.dart';
-// import 'package:star/constant.dart';
-// import 'package:zego_express_engine/zego_express_engine.dart';
-// import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
+import 'package:flutter/material.dart';
+import 'package:star/constant.dart';
+import 'package:zego_express_engine/zego_express_engine.dart';
+import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 
-// class SoloSinging extends StatefulWidget {
-//   const SoloSinging({super.key});
+class SoloSinging extends StatefulWidget {
+  const SoloSinging({super.key});
 
-//   @override
-//   State<SoloSinging> createState() => _SoloSingingState();
-// }
+  @override
+  State<SoloSinging> createState() => _SoloSingingState();
+}
 
-// class _SoloSingingState extends State<SoloSinging> {
-//   String? userID;
-//   String? userName;
-//   ZegoUser? user;
-//   bool isHost = true;
-//   ZegoRoomConfig? roomConfig;
-//   final engine = ZegoExpressEngine.instance;
-//   final roomID = Random().nextInt(10000).toString();
-//   final token = Random().nextInt(1000000).toString();
-//   Future<void> createEngineWithProfile() async {
-//     ZegoEngineProfile profile = ZegoEngineProfile(
-//       653933933,
-//       ZegoScenario.Karaoke,
-//       appSign:
-//           "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40",
-//     );
-//     return await ZegoExpressEngine.createEngineWithProfile(profile);
-//   }
+class _SoloSingingState extends State<SoloSinging> {
+  String? userID;
+  String? userName;
+  ZegoUser? user;
+  bool isHost = true;
+  ZegoRoomConfig? roomConfig;
+  final engine = ZegoExpressEngine.instance;
+  final roomID = Random().nextInt(10000).toString();
+  final token = Random().nextInt(1000000).toString();
+  Future<void> createEngineWithProfile() async {
+    ZegoEngineProfile profile = ZegoEngineProfile(
+      653933933,
+      ZegoScenario.Karaoke,
+      appSign:
+          "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40",
+    );
+    return await ZegoExpressEngine.createEngineWithProfile(profile);
+  }
 
-//   loginRoom() async {
-//     userID = localUserID;
-//     userName = localUserID.toString();
+  loginRoom() async {
+    userID = localUserID;
+    userName = localUserID.toString();
 
-//     user = ZegoUser(userID!, userName!);
-//     roomConfig = ZegoRoomConfig(5, true, token);
+    user = ZegoUser(userID!, userName!);
+    roomConfig = ZegoRoomConfig(5, true, token);
 
-//     // engine.loginRoom(roomID, user!, config: roomConfig);
-//   }
+    // engine.loginRoom(roomID, user!, config: roomConfig);
+  }
 
-//   @override
-//   void initState() {
-//     createEngineWithProfile();
-//     loginRoom();
-//     super.initState();
-//   }
+  @override
+  void initState() {
+    createEngineWithProfile();
+    loginRoom();
+    super.initState();
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return SafeArea(
-//       child: LayoutBuilder(builder: (context, constraints) {
-//         return ZegoUIKitPrebuiltLiveStreaming(
-//           appID: 653933933 /*input your AppID*/,
-//           appSign:
-//               "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40",
-//           userID: userID!,
-//           userName: userID!,
-//           liveID: roomID,
-//           config: isHost
-//               ? ZegoUIKitPrebuiltLiveStreamingConfig.host()
-//               : ZegoUIKitPrebuiltLiveStreamingConfig.audience()
-//             ..turnOnCameraWhenJoining = false
-//             ..bottomMenuBarConfig.hostButtons = [
-//               ZegoMenuBarButtonName.toggleMicrophoneButton
-//             ]
-//             ..background = background(constraints),
-//           events: ZegoUIKitPrebuiltLiveStreamingEvents(
-//               hostEvents: ZegoUIKitPrebuiltLiveStreamingHostEvents(),
-//               audienceEvents: ZegoUIKitPrebuiltLiveStreamingAudienceEvents(),
-//               pkEvents: ZegoUIKitPrebuiltLiveStreamingPKV2Events()),
-//           controller: ZegoUIKitPrebuiltLiveStreamingController(),
-//         );
-//       }),
-//     );
-//   }
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: LayoutBuilder(builder: (context, constraints) {
+        return ZegoUIKitPrebuiltLiveStreaming(
+          appID: 653933933 /*input your AppID*/,
+          appSign:
+              "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40",
+          userID: userID!,
+          userName: userID!,
+          liveID: roomID,
+          config: isHost
+              ? ZegoUIKitPrebuiltLiveStreamingConfig.host()
+              : ZegoUIKitPrebuiltLiveStreamingConfig.audience()
+            ..turnOnCameraWhenJoining = false
+            ..bottomMenuBarConfig.hostButtons = [
+              ZegoMenuBarButtonName.toggleMicrophoneButton
+            ]
+            ..background = background(constraints),
+          events: ZegoUIKitPrebuiltLiveStreamingEvents(
+              hostEvents: ZegoUIKitPrebuiltLiveStreamingHostEvents(
+                
+              ),
+              audienceEvents: ZegoUIKitPrebuiltLiveStreamingAudienceEvents(),
+              pkEvents: ZegoUIKitPrebuiltLiveStreamingPKV2Events()),
+          controller: ZegoUIKitPrebuiltLiveStreamingController(),
+        );
+      }),
+    );
+  }
 
-//   Widget background(constraints) {
-//     /// how to replace background view
-//     const padding = 20;
-//     final playerSize =
-//         Size(constraints.maxWidth - padding * 2, constraints.maxWidth * 9 / 16);
-//     return Stack(
-//       children: [
-//         Container(
-//           decoration: BoxDecoration(
-//             image: DecorationImage(
-//               fit: BoxFit.fill,
-//               image: Image.asset('assets/images/background.jpg').image,
-//             ),
-//           ),
-//         ),
-//         const Positioned(
-//             top: 10,
-//             left: 10,
-//             child: Text(
-//               'Live Audio Room',
-//               overflow: TextOverflow.ellipsis,
-//               style: TextStyle(
-//                 color: Colors.white,
-//                 fontSize: 15,
-//                 fontWeight: FontWeight.w600,
-//               ),
-//             )),
-//         Positioned(
-//           top: 10 + 20,
-//           left: 10,
-//           child: Text(
-//             'ID: ${roomID}',
-//             overflow: TextOverflow.ellipsis,
-//             style: const TextStyle(
-//               color: Color(0xff606060),
-//               fontSize: 12,
-//               fontWeight: FontWeight.w500,
-//             ),
-//           ),
-//         ),
-//         Positioned(
-//             top: 10 + 40,
-//             left: 20,
-//             child: advanceMediaPlayer(
-//                 canControl: true, constraints: constraints, url: ''))
-//       ],
-//     );
-//   }
-// }
+  Widget background(constraints) {
+    /// how to replace background view
+    const padding = 20;
+    final playerSize =
+        Size(constraints.maxWidth - padding * 2, constraints.maxWidth * 9 / 16);
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.fill,
+              image: Image.asset('assets/images/background.jpg').image,
+            ),
+          ),
+        ),
+        const Positioned(
+            top: 10,
+            left: 10,
+            child: Text(
+              'Live Audio Room',
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            )),
+        Positioned(
+          top: 10 + 20,
+          left: 10,
+          child: Text(
+            'ID: ${roomID}',
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xff606060),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        // Positioned(
+        //     top: 10 + 40,
+        //     left: 20,
+        //     child: advanceMediaPlayer(
+        //         canControl: true, constraints: constraints, url: ''))
+      ],
+    );
+  }
+}
 
 // Widget simpleMediaPlayer({
 //   required bool canControl,

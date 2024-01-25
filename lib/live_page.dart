@@ -32,17 +32,22 @@ class LivePage extends StatefulWidget {
 
 class LivePageState extends State<LivePage> {
   final liveController = ZegoLiveAudioRoomController();
+  Widget? localView;
+  int? localViewID;
+  Widget? remoteView;
+  int? remoteViewID;
   String _currentLyrics = '';
   ZegoMediaPlayer? mediaPlayer;
   ZegoEngineProfile profile = ZegoEngineProfile(
     653933933,
-    ZegoScenario.Karaoke,
+    ZegoScenario.Broadcast,
     appSign: "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40",
   );
   var result;
 
   void initZego() async {
     await ZegoExpressEngine.createEngineWithProfile(profile);
+
     var parser = LyricsParser(lyricsContent);
     final result = await parser.parse();
     ZegoExpressEngine.instance;
@@ -50,7 +55,8 @@ class LivePageState extends State<LivePage> {
     mediaPlayer = await ZegoExpressEngine.instance.createMediaPlayer();
     if (mediaPlayer != null) {
       await mediaPlayer!
-          .loadResource("https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
+          .loadResource(
+              "https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
           .then((ZegoMediaPlayerLoadResourceResult result) {
         if (result.errorCode == 0) {
           playMusicAndSyncLyrics(mediaPlayer!, lyrics);
@@ -93,19 +99,126 @@ class LivePageState extends State<LivePage> {
     });
   }
 
-  Future<ZegoRoomLoginResult> loginRoom(String roomID, ZegoUser user,
-      {ZegoRoomConfig? config}) async {
-    return await ZegoExpressEngine.instance
-        .loginRoom(roomID, user, config: config);
+  void startListenEvent() {
+    // Callback for updates on the status of other users in the room.
+    // Users can only receive callbacks when the isUserStatusNotify property of ZegoRoomConfig is set to `true` when logging in to the room (loginRoom).
+    ZegoExpressEngine.onRoomUserUpdate =
+        (roomID, updateType, List<ZegoUser> userList) {
+      debugPrint(
+          'onRoomUserUpdate: roomID: $roomID, updateType: ${updateType.name}, userList: ${userList.map((e) => e.userID)}');
+    };
+    // Callback for updates on the status of the streams in the room.
+    ZegoExpressEngine.onRoomStreamUpdate =
+        (roomID, updateType, List<ZegoStream> streamList, extendedData) {
+      debugPrint(
+          'onRoomStreamUpdate: roomID: $roomID, updateType: $updateType, streamList: ${streamList.map((e) => e.streamID)}, extendedData: $extendedData');
+      if (updateType == ZegoUpdateType.Add) {
+        for (final stream in streamList) {
+          startPlayStream(stream.streamID);
+        }
+      } else {
+        for (final stream in streamList) {
+          stopPlayStream(stream.streamID);
+        }
+      }
+    };
+    // Callback for updates on the current user's room connection status.
+    ZegoExpressEngine.onRoomStateUpdate =
+        (roomID, state, errorCode, extendedData) {
+      debugPrint(
+          'onRoomStateUpdate: roomID: $roomID, state: ${state.name}, errorCode: $errorCode, extendedData: $extendedData');
+    };
+
+    // Callback for updates on the current user's stream publishing changes.
+    ZegoExpressEngine.onPublisherStateUpdate =
+        (streamID, state, errorCode, extendedData) {
+      debugPrint(
+          'onPublisherStateUpdate: streamID: $streamID, state: ${state.name}, errorCode: $errorCode, extendedData: $extendedData');
+    };
+  }
+
+  void stopListenEvent() {
+    ZegoExpressEngine.onRoomUserUpdate = null;
+    ZegoExpressEngine.onRoomStreamUpdate = null;
+    ZegoExpressEngine.onRoomStateUpdate = null;
+    ZegoExpressEngine.onPublisherStateUpdate = null;
+  }
+
+  Future<void> startPreview() async {
+    await ZegoExpressEngine.instance.createCanvasView((viewID) {
+      localViewID = viewID;
+      ZegoCanvas previewCanvas =
+          ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
+      ZegoExpressEngine.instance.startPreview(canvas: previewCanvas);
+    }).then((canvasViewWidget) {
+      setState(() => localView = canvasViewWidget);
+    });
+  }
+
+  Future<void> stopPreview() async {
+    ZegoExpressEngine.instance.stopPreview();
+    if (localViewID != null) {
+      await ZegoExpressEngine.instance.destroyCanvasView(localViewID!);
+      setState(() {
+        localViewID = null;
+        localView = null;
+      });
+    }
+  }
+
+  Future<void> startPublish() async {
+    // After calling the `loginRoom` method, call this method to publish streams.
+    // The StreamID must be unique in the room.
+    String streamID = '${widget.roomID}_${localUserID}_call';
+    return ZegoExpressEngine.instance.startPublishingStream(streamID);
+  }
+
+  Future<void> stopPublish() async {
+    return ZegoExpressEngine.instance.stopPublishingStream();
+  }
+
+  Future<void> startPlayStream(String streamID) async {
+    // Start to play streams. Set the view for rendering the remote streams.
+    await ZegoExpressEngine.instance.createCanvasView((viewID) {
+      remoteViewID = viewID;
+      ZegoCanvas canvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
+      ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
+    }).then((canvasViewWidget) {
+      setState(() => remoteView = canvasViewWidget);
+    });
+  }
+
+  Future<void> stopPlayStream(String streamID) async {
+    ZegoExpressEngine.instance.stopPlayingStream(streamID);
+    if (remoteViewID != null) {
+      ZegoExpressEngine.instance.destroyCanvasView(remoteViewID!);
+      setState(() {
+        remoteViewID = null;
+        remoteView = null;
+      });
+    }
+  }
+
+  initAudience() async {
+    await ZegoExpressEngine.createEngineWithProfile(profile);
   }
 
   @override
   void initState() {
-    initZego();
+    if (widget.isHost) {
+      initZego();
+      startListenEvent();
+    } else {}
+
     super.initState();
   }
 
   @override
+  void dispose() {
+    stopListenEvent();
+
+    super.dispose();
+  }
   Widget build(BuildContext context) {
     return SafeArea(
       child: LayoutBuilder(
@@ -132,6 +245,7 @@ class LivePageState extends State<LivePage> {
               ..topMenuBarConfig.buttons = [
                 ZegoMenuBarButtonName.minimizingButton
               ]
+              ..backgroundMediaConfig = ZegoBackgroundMediaConfig()
               ..userAvatarUrl = 'https://robohash.org/$localUserID.png'
               ..onUserCountOrPropertyChanged = (List<ZegoUIKitUser> users) {
                 debugPrint(
@@ -207,12 +321,17 @@ class LivePageState extends State<LivePage> {
             SizedBox(
               height: 10,
             ),
-            MaterialButton(child: Text('STOP',style: TextStyle(color: Colors.white,fontSize: 24),), onPressed: () async {
-              await ZegoExpressEngine.instance.destroyMediaPlayer(mediaPlayer!).then((value) => null);
-              setState(() {
-                
-              });
-            })
+            MaterialButton(
+                child: Text(
+                  'STOP',
+                  style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+                onPressed: () async {
+                  await ZegoExpressEngine.instance
+                      .destroyMediaPlayer(mediaPlayer!)
+                      .then((value) => null);
+                  setState(() {});
+                })
           ],
         ));
     // } else {
@@ -300,6 +419,7 @@ class LivePageState extends State<LivePage> {
   }
 
   int getHostSeatIndex() {
+    
     if (widget.layoutMode == LayoutMode.hostCenter) {
       return 4;
     }

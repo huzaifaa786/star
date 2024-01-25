@@ -25,7 +25,7 @@ class _LyricsViewState extends State<LyricsView>
   ZegoMediaPlayer? mediaPlayer;
   ZegoEngineProfile profile = ZegoEngineProfile(
     653933933,
-    ZegoScenario.Karaoke,
+    ZegoScenario.Broadcast,
     appSign: "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40",
   );
   void initZego() async {
@@ -40,21 +40,13 @@ class _LyricsViewState extends State<LyricsView>
     ZegoExpressEngine.instance;
     final lyrics = await parseLyrics(result.lyricList);
 
-    for (var lyric in result.lyricList) {
-      print('COMMENT: ');
-      print(lyric.content.toString());
-      print(lyric.startTimeMillisecond.toString());
-      print(Duration(milliseconds: lyric.startTimeMillisecond!.toInt())
-          .inSeconds);
-    }
     mediaPlayer = await ZegoExpressEngine.instance.createMediaPlayer();
     if (mediaPlayer != null) {
       await mediaPlayer!
           .loadResource(
               "https://drive.usercontent.google.com/u/0/uc?id=10THOqengje93IPK4XLI3OKLc5Kg9SCPn&export=download")
           .then((ZegoMediaPlayerLoadResourceResult result) {
-        print('AAAAAAAAAAAAAAAAA');
-        print(result.errorCode);
+      
         if (result.errorCode == 0) {
           playMusicAndSyncLyrics(mediaPlayer!, lyrics);
         } else {
@@ -62,7 +54,7 @@ class _LyricsViewState extends State<LyricsView>
         }
       });
     } else {}
-  }
+  } 
 
 // Function to download files from URL
   Future<String> downloadFile(String url) async {
