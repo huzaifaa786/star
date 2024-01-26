@@ -96,20 +96,19 @@ class _SoloSingViewState extends State<SoloSingView> {
       Map<String, dynamic> jsonObject = jsonDecode(dataString);
       String KEY_PROGRESS_IN_MS = "KEY_PROGRESS_IN_MS";
       int progress = jsonObject[KEY_PROGRESS_IN_MS];
-       Duration currentDuration = Duration(milliseconds: progress);
+      Duration currentDuration = Duration(milliseconds: progress);
 
-    var previousTimestamps =
-        lyrics!.keys.where((k) => k as Duration <= currentDuration);
+      var previousTimestamps =
+          lyrics!.keys.where((k) => k as Duration <= currentDuration);
 
-    if (previousTimestamps.isNotEmpty) {
-      Duration latestTimestamp =
-          previousTimestamps.reduce((Duration a, Duration b) => a > b ? a : b);
+      if (previousTimestamps.isNotEmpty) {
+        Duration latestTimestamp = previousTimestamps
+            .reduce((Duration a, Duration b) => a > b ? a : b);
 
-      setState(() {
-        currentLyrics = lyrics![latestTimestamp] ?? '';
-      });
-    }
-     
+        setState(() {
+          currentLyrics = lyrics![latestTimestamp] ?? '';
+        });
+      }
     } catch (e) {
       print(e);
     }
@@ -220,13 +219,10 @@ class _SoloSingViewState extends State<SoloSingView> {
           isHost
               ? SizedBox(
                   width: MediaQuery.of(context).size.width,
-                  child: Text(
-                    singerCurrentLyrics,
-                    style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
-                    textAlign: TextAlign.center,
+                  height: MediaQuery.of(context).size.height,
+                  child: LyricsWidget(
+                    lyrics: lyrics!,
+                    currentLyrics: singerCurrentLyrics,
                   ),
                 )
               : SizedBox(
@@ -250,6 +246,79 @@ class _SoloSingViewState extends State<SoloSingView> {
               : Text(''),
         ],
       )),
+    );
+  }
+}
+
+class LyricsWidget extends StatefulWidget {
+  final Map<Duration, String> lyrics;
+  final String currentLyrics;
+
+  LyricsWidget({required this.lyrics, required this.currentLyrics});
+
+  @override
+  _LyricsWidgetState createState() => _LyricsWidgetState();
+}
+
+class _LyricsWidgetState extends State<LyricsWidget> {
+  ScrollController _scrollController = ScrollController();
+  int _currentLyricIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollToCurrentLyric();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose(); // Dispose the ScrollController
+    super.dispose();
+  }
+
+  void _scrollToCurrentLyric() {
+    if (_currentLyricIndex >= 0 && _currentLyricIndex < widget.lyrics.length) {
+      _scrollController.animateTo(
+        _currentLyricIndex *
+            20.0, // Adjust the value to control the scrolling speed
+        duration: Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _updateCurrentLyricIndex(int timestamp) {
+    Duration currentDuration = widget.lyrics.keys.firstWhere(
+      (duration) => duration.inMilliseconds > timestamp,
+      orElse: () => widget.lyrics.keys.last,
+    );
+    int newIndex = widget.lyrics.keys.toList().indexOf(currentDuration);
+    setState(() {
+      _currentLyricIndex = newIndex;
+    });
+    _scrollToCurrentLyric();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      controller: _scrollController,
+      itemCount: widget.lyrics.length,
+      itemBuilder: (context, index) {
+        bool isCurrentLyric = index == _currentLyricIndex;
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(
+            widget.lyrics[widget.lyrics.keys.toList()[index]]!,
+            style: TextStyle(
+              fontSize: 16.0,
+              color: isCurrentLyric ? Colors.blue : Colors.black,
+              fontWeight: isCurrentLyric ? FontWeight.bold : FontWeight.normal,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        );
+      },
     );
   }
 }
