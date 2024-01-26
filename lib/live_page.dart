@@ -2,7 +2,9 @@
 
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:lyrics_parser/lyrics_parser.dart';
 import 'package:star/constant.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
@@ -43,30 +45,75 @@ class LivePageState extends State<LivePage> {
     ZegoScenario.Broadcast,
     appSign: "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40",
   );
+
+  // lyrics
+  double sliderProgress = 0;
+  int playProgress = 0;
+  double max_value = 211658;
+  bool isTap = false;
+  bool useEnhancedLrc = false;
+  var lyricModel =
+      LyricsModelBuilder.create().bindLyricToMain(lyricsContent).getModel();
+  var lyricUI = UINetease();
+  var playing = false;
+
   var result;
 
   void initZego() async {
     await ZegoExpressEngine.createEngineWithProfile(profile);
 
-    var parser = LyricsParser(lyricsContent);
-    final result = await parser.parse();
-    ZegoExpressEngine.instance;
-    final lyrics = await parseLyrics(result.lyricList);
+    // var parser = LyricsParser(lyricsContent);
+    // final result = await parser.parse();
+    // ZegoExpressEngine.instance;
+    // final lyrics = await parseLyrics(result.lyricList);
     mediaPlayer = await ZegoExpressEngine.instance.createMediaPlayer();
     mediaPlayer!.enableAux(true);
+    await mediaPlayer!
+        .loadResource("https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
+        .then((ZegoMediaPlayerLoadResourceResult result) => {
+          debugPrint(result.errorCode.toString()),
+              if (result.errorCode == 0)
+                {
+                
+                  mediaPlayer!.start(),
+                  setEventHandler(),
+                }
+              else
+                {}
+            });
+    // if (mediaPlayer != null) {
+    //   await mediaPlayer!
+    //       .loadResource(
+    //           "https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
+    //       .then((ZegoMediaPlayerLoadResourceResult result) {
+    //     if (result.errorCode == 0) {
+    //       playMusicAndSyncLyrics(mediaPlayer!, lyrics);
+    //     } else {
+    //       // loadResource errorcode: errorcode
+    //     }
+    //   });
+    // } else {}
+  }
 
-    if (mediaPlayer != null) {
-      await mediaPlayer!
-          .loadResource(
-              "https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
-          .then((ZegoMediaPlayerLoadResourceResult result) {
-        if (result.errorCode == 0) {
-          playMusicAndSyncLyrics(mediaPlayer!, lyrics);
-        } else {
-          // loadResource errorcode: errorcode
-        }
+  setEventHandler() async {
+    setState(() {
+      playing = true;
+    });
+
+    ZegoExpressEngine.onMediaPlayerPlayingProgress =
+        (mediaPlayer, millisecond) {
+      setState(() {
+        sliderProgress = millisecond.toDouble();
+        playProgress = millisecond;
       });
-    } else {}
+    };
+
+    ZegoExpressEngine.onMediaPlayerStateUpdate =
+        (mediaPlayer, state, errorCode) {
+      setState(() {
+        playing = state == ZegoMediaPlayerState.Playing;
+      });
+    };
   }
 
   Future<Map<Duration, String>> parseLyrics(lyrics) async {
@@ -209,7 +256,7 @@ class LivePageState extends State<LivePage> {
   void initState() {
     if (widget.isHost) {
       initZego();
-      startListenEvent();
+      // startListenEvent();
     } else {}
 
     super.initState();
@@ -304,39 +351,64 @@ class LivePageState extends State<LivePage> {
     );
   }
 
+  Stack buildReaderWidget() {
+    return Stack(
+      children: [
+        LyricsReader(
+          padding: EdgeInsets.symmetric(horizontal: 0),
+          model: lyricModel,
+          position: playProgress,
+          lyricUi: lyricUI,
+          playing: playing,
+          size: Size(MediaQuery.of(context).size.width,
+              MediaQuery.of(context).size.height * 0.5),
+          emptyBuilder: () => Center(
+            child: Text(
+              "No lyrics",
+              style: lyricUI.getOtherMainTextStyle(),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
   Widget foreground(BoxConstraints constraints) {
-    return Positioned(
-        top: 290,
-        right: 10,
-        child: Column(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Text(
-                _currentLyrics,
-                style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            MaterialButton(
-                child: Text(
-                  'STOP',
-                  style: TextStyle(color: Colors.white, fontSize: 24),
-                ),
-                onPressed: () async {
-                  await ZegoExpressEngine.instance
-                      .destroyMediaPlayer(mediaPlayer!)
-                      .then((value) => null);
-                  setState(() {});
-                })
-          ],
-        ));
+    return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+      buildReaderWidget(),
+    ]);
+    // return Positioned(
+    //     top: 290,
+    //     right: 10,
+    //     child: Column(
+    //       children: [
+    //         SizedBox(
+    //           width: MediaQuery.of(context).size.width,
+    //           child: Text(
+    //             _currentLyrics,
+    //             style: TextStyle(
+    //                 fontSize: 24.0,
+    //                 fontWeight: FontWeight.bold,
+    //                 color: Colors.black),
+    //             textAlign: TextAlign.center,
+    //           ),
+    //         ),
+    //         SizedBox(
+    //           height: 10,
+    //         ),
+    //         MaterialButton(
+    //             child: Text(
+    //               'STOP',
+    //               style: TextStyle(color: Colors.white, fontSize: 24),
+    //             ),
+    //             onPressed: () async {
+    //               await ZegoExpressEngine.instance
+    //                   .destroyMediaPlayer(mediaPlayer!)
+    //                   .then((value) => null);
+    //               setState(() {});
+    //             })
+    //       ],
+    //     ));
     // } else {
     //   return Container();
     // }

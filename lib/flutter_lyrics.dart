@@ -10,9 +10,10 @@ class FlutterLyricsScreen extends StatefulWidget {
   _FlutterLyricsScreenState createState() => _FlutterLyricsScreenState();
 }
 
-class _FlutterLyricsScreenState extends State<FlutterLyricsScreen> with SingleTickerProviderStateMixin {
+class _FlutterLyricsScreenState extends State<FlutterLyricsScreen>
+    with SingleTickerProviderStateMixin {
   AudioPlayer? audioPlayer;
-  double sliderProgress = 0;
+  double  sliderProgress= 0;
   int playProgress = 0;
   double max_value = 211658;
   bool isTap = false;
@@ -20,13 +21,44 @@ class _FlutterLyricsScreenState extends State<FlutterLyricsScreen> with SingleTi
   bool useEnhancedLrc = false;
   var lyricModel = LyricsModelBuilder.create()
       .bindLyricToMain(normalLyric)
-      .bindLyricToExt(normalLyric)
+  
       .getModel();
 
   var lyricUI = UINetease();
 
+  playSong() {
+    if (audioPlayer == null) {
+      audioPlayer = AudioPlayer()..play(AssetSource("love.mp3"));
+      setState(() {
+        playing = true;
+      });
+      audioPlayer?.onDurationChanged.listen((Duration event) {
+        setState(() {
+          max_value = event.inMilliseconds.toDouble();
+        });
+      });
+      audioPlayer?.onPositionChanged.listen((Duration event) {
+        if (isTap) return;
+        setState(() {
+          sliderProgress = event.inMilliseconds.toDouble();
+          playProgress = event.inMilliseconds;
+        });
+      });
+
+      audioPlayer?.onPlayerStateChanged.listen((PlayerState state) {
+        setState(() {
+          playing = state == PlayerState.playing;
+        });
+      });
+    } else {
+      audioPlayer?.resume();
+    }
+  }
+
   @override
   void initState() {
+    
+    playSong();
     super.initState();
   }
 
@@ -45,16 +77,16 @@ class _FlutterLyricsScreenState extends State<FlutterLyricsScreen> with SingleTi
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         buildReaderWidget(),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                ...buildPlayControl(),
-                ...buildUIControl(),
-              ],
-            ),
-          ),
-        ),
+        // Expanded(
+        //   child: SingleChildScrollView(
+        //     child: Column(
+        //       children: [
+        //         // ...buildPlayControl(),
+        //         // ...buildUIControl(),
+        //       ],
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
@@ -66,44 +98,20 @@ class _FlutterLyricsScreenState extends State<FlutterLyricsScreen> with SingleTi
       children: [
         ...buildReaderBackground(),
         LyricsReader(
-          padding: EdgeInsets.symmetric(horizontal: lyricPadding),
+          padding: EdgeInsets.symmetric(horizontal: 0),
           model: lyricModel,
           position: playProgress,
           lyricUi: lyricUI,
           playing: playing,
-          size: Size(double.infinity, MediaQuery.of(context).size.height / 2),
+          size: Size(MediaQuery.of(context).size.width,
+              MediaQuery.of(context).size.height * 0.8),
           emptyBuilder: () => Center(
             child: Text(
               "No lyrics",
               style: lyricUI.getOtherMainTextStyle(),
             ),
           ),
-          selectLineBuilder: (progress, confirm) {
-            return Row(
-              children: [
-                IconButton(
-                    onPressed: () {
-                      LyricsLog.logD("点击事件");
-                      confirm.call();
-                      setState(() {
-                        audioPlayer?.seek(Duration(milliseconds: progress));
-                      });
-                    },
-                    icon: Icon(Icons.play_arrow, color: Colors.green)),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(color: Colors.green),
-                    height: 1,
-                    width: double.infinity,
-                  ),
-                ),
-                Text(
-                  progress.toString(),
-                  style: TextStyle(color: Colors.green),
-                )
-              ],
-            );
-          },
+          
         )
       ],
     );
