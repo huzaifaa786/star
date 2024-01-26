@@ -68,19 +68,7 @@ class LivePageState extends State<LivePage> {
     // final lyrics = await parseLyrics(result.lyricList);
     mediaPlayer = await ZegoExpressEngine.instance.createMediaPlayer();
     mediaPlayer!.enableAux(true);
-    await mediaPlayer!
-        .loadResource("https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
-        .then((ZegoMediaPlayerLoadResourceResult result) => {
-          debugPrint(result.errorCode.toString()),
-              if (result.errorCode == 0)
-                {
-                
-                  mediaPlayer!.start(),
-                  setEventHandler(),
-                }
-              else
-                {}
-            });
+
     // if (mediaPlayer != null) {
     //   await mediaPlayer!
     //       .loadResource(
@@ -93,6 +81,24 @@ class LivePageState extends State<LivePage> {
     //     }
     //   });
     // } else {}
+  }
+
+  void playSong() async {
+    if (mediaPlayer != null) {
+      await mediaPlayer!
+          .loadResource(
+              "https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
+          .then((ZegoMediaPlayerLoadResourceResult result) => {
+                debugPrint(result.errorCode.toString()),
+                if (result.errorCode == 0)
+                  {
+                    mediaPlayer!.start(),
+                    setEventHandler(),
+                  }
+                else
+                  {}
+              });
+    }
   }
 
   setEventHandler() async {
@@ -375,6 +381,12 @@ class LivePageState extends State<LivePage> {
 
   Widget foreground(BoxConstraints constraints) {
     return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+      MaterialButton(
+        onPressed: () {
+          playSong();
+        },
+        child: Text('Play'),
+      ),
       buildReaderWidget(),
     ]);
     // return Positioned(
