@@ -76,7 +76,7 @@ class _KaraokeAppHomePageState extends State<KaraokeAppHomePage> {
               },
               child: Text('Start Singing'),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             OutlinedButton(
               onPressed: () {
                 jumpToLivePage(context,

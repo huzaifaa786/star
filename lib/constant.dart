@@ -109,95 +109,63 @@ final String lyricsContent = '''[00:10.27]Dass Putt Tera Head Down Kaston
 [04:10.30]Sach Bolega Taan Milu 295
 [04:12.80]Je Karega Tarakki Putt Hate Milugi''';
 
-final normalLyric = """[ti:If I Didn't Love You]
-[ar:Jason Aldean/Carrie Underwood]
-[al:If I Didn't Love You]
-[by:]
-[offset:0]
-[00:00.45]If I Didn't Love You - Jason Aldean/Carrie Underwood
-[00:02.49]
-[00:11.15]I wouldn't mind being alone
-[00:12.85]
-[00:13.68]I wouldn't keep checking my phone
-[00:16.29]Wouldn't take the long way home
-[00:18.00]Just to drive myself crazy
-[00:20.56]
-[00:21.53]I wouldn't be losing sleep
-[00:23.27]
-[00:24.24]Remembering everything
-[00:26.57]Everything you said to me
-[00:28.62]Like I'm doing lately
-[00:31.10]You you wouldn't be all
-[00:34.55]
-[00:35.34]All that I want
-[00:37.08]
-[00:37.82]Baby I can let go
-[00:39.45]
-[00:40.36]If I didn't love you I'd be good by now
-[00:45.28]I'd be better than barely getting by somehow
-[00:49.81]
-[00:50.77]Yeah it would be easy not to miss you
-[00:54.57]Wonder about who's with you
-[00:57.20]Turn the want you off
-[00:58.61]Whenever I want to
-[01:01.21]If I didn't love you
-[01:05.26]
-[01:06.32]If I didn't love you
-[01:09.33]
-[01:13.71]I wouldn't still cry sometimes
-[01:15.86]
-[01:16.51]Wouldn't have to fake a smile
-[01:18.26]
-[01:18.83]Play it off and tell a lie
-[01:20.97]When somebody asked how I've been
-[01:24.17]I'd try to find someone new
-[01:25.70]Someone new
-[01:26.82]It should be something I can do
-[01:28.53]I can do
-[01:29.37]Baby if it weren't for you
-[01:31.22]I wouldn't be in the state that I'm in
-[01:33.78]Yeah you
-[01:34.37]
-[01:35.17]You wouldn't be all
-[01:37.10]
-[01:37.99]All that I want
-[01:39.62]
-[01:40.41]Baby I could let go
-[01:42.98]If I didn't love you I'd be good by now
-[01:47.85]I'd be better than barely getting by somehow
-[01:52.47]
-[01:53.42]Yeah it would be easy not to miss you
-[01:57.14]Wonder about who's with you
-[01:59.75]Turn the want you off
-[02:01.06]Whenever I want to
-[02:03.30]
-[02:03.82]If I didn't love you
-[02:07.87]
-[02:08.91]If I didn't love you
-[02:11.08]Oh if I didn't love you
-[02:14.59]It wouldn't be so hard to see you
-[02:18.05]Know how much I need you
-[02:20.68]Wouldn't hate that I still feel like I do
-[02:24.26]
-[02:24.77]If I didn't love you
-[02:26.70]Oh if I didn't love you
-[02:30.14]If I didn't love you
-[02:32.77]Hmm mm-hmm
-[02:34.57]
-[02:35.09]If I didn't love you I'd be good by now
-[02:39.96]I'd be better than barely getting by somehow
-[02:44.88]
-[02:45.56]Yeah it would be easy not to miss you
-[02:49.33]Wonder about who's with you
-[02:51.96]Turn the want you off
-[02:53.24]Whenever I want to
-[02:56.04]If I didn't love you
-[02:59.32]Yeah ayy ayy
-[03:01.21]If I didn't love you
-[03:03.28]Oh if I didn't love you
-[03:06.56]If I didn't love you
-[03:09.07]If I didn't love you
-[03:11.67]If I didn't love you""";
+final normalLyric = """[ti: Love Me Like You Do]
+[length:04:12.71]
+[re:www.megalobiz.com/lrc/maker]
+[ve:v1.2.3]
+[00:0.00] Love Me Like You Do
+[00:05.00]Ellie Goulding
+[00:10.00]
+[00:15.00]
+[00:19.39]You're the light, you're the night
+[00:22.54]You're the colour of my blood
+[00:24.42]You're the cure, you're the pain
+[00:27.17]You're the only thing I wanna touch
+[00:31.92]Never knew that it could mean so much,
+[00:36.31]so much
+[00:39.20]
+[00:39.84]You're the fear, I don't care
+[00:42.47]'Cause I've never been so high
+[00:44.87]Follow me to the dark
+[00:47.12]Let me take you past our satellites
+[00:52.51]You can see the world you brought to life,
+[00:56.76]to life
+[00:58.65]
+[01:00.05]So love me like you do, lo-lo-love me like you do
+[01:04.68]Love me like you do, lo-lo-love me like you do
+[01:10.18]Touch me like you do, to-to-touch me like you do
+[01:16.43]What are you waiting for?
+[01:19.83]Fading in, fading out
+[01:22.83]On the edge of paradise
+[01:25.33]Every inch of your skin is a holy grail I've got to find
+[01:32.59]Only you can set my heart on fire, on fire
+[01:39.08]
+[01:39.48]Yeah, I'll let you set the pace
+[01:45.13]'Cause I'm not thinking straight
+[01:50.52]My head's spinning around I can't see clear no more
+[01:57.52]What are you waiting for?
+[02:00.77]Love me like you do, lo-lo-love me like you do (like you do)
+[02:06.42]Love me like you do, lo-lo-love me like you do
+[02:10.32]Touch me like you do, to-to-touch me like you do
+[02:17.24]What are you waiting for?
+[02:21.13]Love me like you do, lo-lo-love me like you do (like you do)
+[02:26.64]Love me like you do, lo-lo-love me like you do (yeah)
+[02:31.13]Touch me like you do, to-to-touch me like you do
+[02:37.38]What are you waiting for?
+[02:41.38]
+[02:51.14]I'll let you set the pace
+[02:56.55]'Cause I'm not thinking straight
+[03:00.70]My head's spinning around I can't see clear no more
+[03:10.21]What are you waiting for?
+[03:13.84]Love me like you do, lo-lo-love me like you do (like you do)
+[03:19.59]Love me like you do, lo-lo-love me like you do (yeah)
+[03:24.09]Touch me like you do, to-to-touch me like you do
+[03:31.23]What are you waiting for?
+[03:34.73]Love me like you do, lo-lo-love me like you do (like you do)
+[03:39.62]Love me like you do, lo-lo-love me like you do (oh)
+[03:44.77]Touch me like you do, to-to-touch me like you do
+[03:51.77]What are you waiting for?
+""";
 
 extension LayoutModeExtension on LayoutMode {
   String get text {
