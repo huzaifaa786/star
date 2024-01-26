@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:star/constant.dart';
 import 'package:star/live_page.dart';
 import 'package:star/solo/solo_singing.dart';
+import 'package:star/solo_sing_view.dart';
 
 class KaraokeAppHomePage extends StatefulWidget {
   KaraokeAppHomePage({Key? key}) : super(key: key);
@@ -15,6 +16,7 @@ class KaraokeAppHomePage extends StatefulWidget {
 class _KaraokeAppHomePageState extends State<KaraokeAppHomePage> {
   final roomIDTextCtrl =
       TextEditingController(text: Random().nextInt(10000).toString());
+  final userID = Random().nextInt(10000).toString();
 
   final layoutValueNotifier =
       ValueNotifier<LayoutMode>(LayoutMode.defaultLayout);
@@ -48,6 +50,20 @@ class _KaraokeAppHomePageState extends State<KaraokeAppHomePage> {
               'assets/images/karaoke_logo.jpeg',
               height: 200,
             ),
+            SizedBox(height: 16.0),
+            Row(
+              children: [
+                const Text('RoomID:'),
+                const SizedBox(width: 10, height: 20),
+                Expanded(
+                  child: TextField(
+                    controller: roomIDTextCtrl,
+                    decoration:
+                        const InputDecoration(labelText: 'Please Input RoomID'),
+                  ),
+                ),
+              ],
+            ),
             SizedBox(height: 32.0),
             ElevatedButton(
               onPressed: () {
@@ -55,6 +71,7 @@ class _KaraokeAppHomePageState extends State<KaraokeAppHomePage> {
                   context,
                   roomID: roomIDTextCtrl.text.trim(),
                   isHost: true,
+                  userID: userID,
                 );
               },
               child: Text('Start Singing'),
@@ -62,11 +79,10 @@ class _KaraokeAppHomePageState extends State<KaraokeAppHomePage> {
             SizedBox(height: 16.0),
             OutlinedButton(
               onPressed: () {
-                jumpToLivePage(
-                  context,
-                  roomID: roomIDTextCtrl.text.trim(),
-                  isHost: false,
-                );
+                jumpToLivePage(context,
+                    roomID: roomIDTextCtrl.text.trim(),
+                    isHost: false,
+                    userID: userID);
               },
               child: Text('Browse Songs'),
             ),
@@ -76,14 +92,19 @@ class _KaraokeAppHomePageState extends State<KaraokeAppHomePage> {
     );
   }
 
-  void jumpToLivePage(BuildContext context,
-      {required String roomID, required bool isHost}) {
+  void jumpToLivePage(
+    BuildContext context, {
+    required String roomID,
+    required bool isHost,
+    required String userID,
+  }) {
     Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SoloSinging(
-              
-              )),
-    );
+        context,
+        MaterialPageRoute(
+            builder: (context) => SoloSingView(
+                  roomID: roomID,
+                  userID: userID,
+                  isHost: isHost,
+                )));
   }
 }

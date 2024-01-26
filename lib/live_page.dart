@@ -53,6 +53,8 @@ class LivePageState extends State<LivePage> {
     ZegoExpressEngine.instance;
     final lyrics = await parseLyrics(result.lyricList);
     mediaPlayer = await ZegoExpressEngine.instance.createMediaPlayer();
+    mediaPlayer!.enableAux(true);
+
     if (mediaPlayer != null) {
       await mediaPlayer!
           .loadResource(
@@ -219,6 +221,7 @@ class LivePageState extends State<LivePage> {
 
     super.dispose();
   }
+
   Widget build(BuildContext context) {
     return SafeArea(
       child: LayoutBuilder(
@@ -419,7 +422,6 @@ class LivePageState extends State<LivePage> {
   }
 
   int getHostSeatIndex() {
-    
     if (widget.layoutMode == LayoutMode.hostCenter) {
       return 4;
     }
