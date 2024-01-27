@@ -102,9 +102,9 @@ class _KaraokeAppHomePageState extends State<KaraokeAppHomePage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => LiveSingView(
+            builder: (context) => SoloSingView(
                   roomID: roomID,
-                  // userID: userID,
+                  userID: userID,
                   isHost: isHost,
                 )));
   }
