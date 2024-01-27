@@ -8,6 +8,10 @@
 	<string>Star</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>NSCameraUsageDescription</key>
+    <string>We require camera access to connect</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>We require microphone access to connect</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>

@@ -1,4 +1,6 @@
 PODS:
+  - audioplayers_darwin (0.0.1):
+    - Flutter
   - DKImagePickerController/Core (4.3.4):
     - DKImagePickerController/ImageDataManager
     - DKImagePickerController/Resource
@@ -34,6 +36,8 @@ PODS:
     - DKImagePickerController/PhotoGallery
     - Flutter
   - Flutter (1.0.0)
+  - flutter_downloader (0.0.1):
+    - Flutter
   - flutter_logs (0.0.1):
     - Flutter
     - ZIPFoundation
@@ -60,7 +64,7 @@ PODS:
     - Flutter
   - zego_callkit (1.0.0):
     - Flutter
-  - zego_express_engine (3.12.3):
+  - zego_express_engine (3.12.4):
     - Flutter
   - zego_uikit (0.0.1):
     - Flutter
@@ -77,8 +81,10 @@ PODS:
   - ZPNs (2.6.0)
 
 DEPENDENCIES:
+  - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
+  - flutter_downloader (from `.symlinks/plugins/flutter_downloader/ios`)
   - flutter_logs (from `.symlinks/plugins/flutter_logs/ios`)
   - native_device_orientation (from `.symlinks/plugins/native_device_orientation/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
@@ -105,10 +111,14 @@ SPEC REPOS:
     - ZPNs
 
 EXTERNAL SOURCES:
+  audioplayers_darwin:
+    :path: ".symlinks/plugins/audioplayers_darwin/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
     :path: Flutter
+  flutter_downloader:
+    :path: ".symlinks/plugins/flutter_downloader/ios"
   flutter_logs:
     :path: ".symlinks/plugins/flutter_logs/ios"
   native_device_orientation:
@@ -137,10 +147,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/zego_zpns/ios"
 
 SPEC CHECKSUMS:
+  audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: 15fd9539e4eb735dc54bae8c0534a7a9511a03de
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  flutter_downloader: b7301ae057deadd4b1650dc7c05375f10ff12c39
   flutter_logs: 5d0dca26963e0f30b11a995a764744ef77d5d428
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   native_device_orientation: 3b4cfc9565a7b879cc4fde282b3e27745e852d0d
@@ -152,7 +164,7 @@ SPEC CHECKSUMS:
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
   zego_callkit: 72593f46ed01779c4cee6bc65d2e0e1cde86b42c
-  zego_express_engine: a110ccfce12901f1ee3c434f6caa7e2f98630847
+  zego_express_engine: ddc85fab5a1ce8c5136e28dfe275f3ddef581022
   zego_uikit: 596cd6edd0e5162a9a1d1f7fec5a79fa8899fb7b
   zego_uikit_signaling_plugin: 7fdfcd9f796b591c9cb8770609f4fa85178aa40e
   zego_zim: 3c1f75261a04903702b618564ae438d911c64228
@@ -161,6 +173,6 @@ SPEC CHECKSUMS:
   ZIPFoundation: b1f0de4eed33e74a676f76e12559ab6b75990197
   ZPNs: 73bad0046a74e37315201053f9a0e7ac625d9436
 
-PODFILE CHECKSUM: 70d9d25280d0dd177a5f637cdb0f0b0b12c6a189
+PODFILE CHECKSUM: ffa903e9eb727a452faa9f6be2ca6ad0b7e4beb6
 
 COCOAPODS: 1.12.0
