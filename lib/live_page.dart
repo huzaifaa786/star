@@ -1,6 +1,8 @@
 // Flutter imports:
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +51,8 @@ class LivePageState extends State<LivePage> {
   // lyrics
   double sliderProgress = 0;
   int playProgress = 0;
+  double AudiencEsliderProgress = 0;
+  int AudienceplayProgress = 0;
   double max_value = 211658;
   bool isTap = false;
   bool useEnhancedLrc = false;
@@ -60,14 +64,12 @@ class LivePageState extends State<LivePage> {
   var result;
 
   void initZego() async {
-    await ZegoExpressEngine.createEngineWithProfile(profile);
+    // await ZegoExpressEngine.createEngineWithProfile(profile);
 
     // var parser = LyricsParser(lyricsContent);
     // final result = await parser.parse();
     // ZegoExpressEngine.instance;
     // final lyrics = await parseLyrics(result.lyricList);
-    mediaPlayer = await ZegoExpressEngine.instance.createMediaPlayer();
-    mediaPlayer!.enableAux(true);
 
     // if (mediaPlayer != null) {
     //   await mediaPlayer!
@@ -84,7 +86,9 @@ class LivePageState extends State<LivePage> {
   }
 
   void playSong() async {
+    mediaPlayer = await ZegoExpressEngine.instance.createMediaPlayer();
     if (mediaPlayer != null) {
+      await mediaPlayer!.enableAux(true);
       await mediaPlayer!
           .loadResource(
               "https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
@@ -101,10 +105,18 @@ class LivePageState extends State<LivePage> {
     }
   }
 
+  listnerEventHandler() async {
+    ZegoExpressEngine.onRoomStreamUpdate = onRoomStateUpdated;
+    ZegoExpressEngine.onPlayerRecvSEI = onPlayerRecvSEI;
+  }
+
   setEventHandler() async {
     setState(() {
       playing = true;
     });
+    String streamID = "music" + widget.roomID;
+
+    await ZegoExpressEngine.instance.startPublishingStream(streamID);
 
     ZegoExpressEngine.onMediaPlayerPlayingProgress =
         (mediaPlayer, millisecond) {
@@ -112,6 +124,7 @@ class LivePageState extends State<LivePage> {
         sliderProgress = millisecond.toDouble();
         playProgress = millisecond;
       });
+      sendSEIMessage(millisecond);
     };
 
     ZegoExpressEngine.onMediaPlayerStateUpdate =
@@ -221,6 +234,55 @@ class LivePageState extends State<LivePage> {
     }
   }
 
+  void onRoomStateUpdated(String roomID, ZegoUpdateType updateType,
+      List<ZegoStream> streamList, extendedData) {
+    String streamID = "music" + widget.roomID;
+    ZegoStream? stream =
+        streamList.where((element) => element.streamID == streamID).first;
+
+    if (stream.streamID.isNotEmpty) {
+      String playStreamID = stream.streamID;
+      if (updateType == ZegoUpdateType.Add) {
+        ZegoExpressEngine.instance
+            .setPlayStreamBufferIntervalRange(playStreamID, 500, 4000);
+        ZegoExpressEngine.instance.startPlayingStream(playStreamID);
+        setState(() {
+          playing = true;
+        });
+      } else {
+        ZegoExpressEngine.instance.stopPlayingStream(playStreamID);
+      }
+    }
+  }
+
+  void onPlayerRecvSEI(String streamID, Uint8List data) {
+    String dataString = utf8.decode(data);
+    try {
+      Map<String, dynamic> jsonObject = jsonDecode(dataString);
+      String KEY_PROGRESS_IN_MS = "KEY_PROGRESS_IN_MS";
+      int progress = jsonObject[KEY_PROGRESS_IN_MS];
+      setState(() {
+        AudiencEsliderProgress = progress.toDouble();
+        AudienceplayProgress = progress;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void sendSEIMessage(int millisecond) {
+    try {
+      Map<String, dynamic> localMusicProcessStatusJsonObject = {
+        'KEY_PROGRESS_IN_MS': millisecond,
+      };
+      String jsonData = jsonEncode(localMusicProcessStatusJsonObject);
+      Uint8List data = utf8.encode(jsonData);
+      ZegoExpressEngine.instance.sendSEI(data, data.length);
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future<void> startPublish() async {
     // After calling the `loginRoom` method, call this method to publish streams.
     // The StreamID must be unique in the room.
@@ -260,8 +322,8 @@ class LivePageState extends State<LivePage> {
 
   @override
   void initState() {
-    if (widget.isHost) {
-      initZego();
+    if (!widget.isHost) {
+      listnerEventHandler();
       // startListenEvent();
     } else {}
 
@@ -379,6 +441,28 @@ class LivePageState extends State<LivePage> {
     );
   }
 
+  Stack buildAudienceReaderWidget() {
+    return Stack(
+      children: [
+        LyricsReader(
+          padding: EdgeInsets.symmetric(horizontal: 0),
+          model: lyricModel,
+          position: AudienceplayProgress,
+          lyricUi: lyricUI,
+          playing: playing,
+          size: Size(MediaQuery.of(context).size.width,
+              MediaQuery.of(context).size.height * 0.5),
+          emptyBuilder: () => Center(
+            child: Text(
+              "No lyrics",
+              style: lyricUI.getOtherMainTextStyle(),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
   Widget foreground(BoxConstraints constraints) {
     return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
       MaterialButton(
@@ -387,7 +471,7 @@ class LivePageState extends State<LivePage> {
         },
         child: Text('Play'),
       ),
-      buildReaderWidget(),
+      widget.isHost ? buildReaderWidget() : buildAudienceReaderWidget()
     ]);
     // return Positioned(
     //     top: 290,
