@@ -104,6 +104,7 @@ class _SoloSingViewState extends State<SoloSingView> {
       int progress = jsonObject[KEY_PROGRESS_IN_MS];
 
       setState(() {
+        playing = true;
         audiencePlayProgress = progress;
       });
     } catch (e) {
