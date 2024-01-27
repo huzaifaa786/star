@@ -114,9 +114,6 @@ class LivePageState extends State<LivePage> {
     setState(() {
       playing = true;
     });
-    String streamID = "music" + widget.roomID;
-
-    await ZegoExpressEngine.instance.startPublishingStream(streamID);
 
     ZegoExpressEngine.onMediaPlayerPlayingProgress =
         (mediaPlayer, millisecond) {
@@ -133,6 +130,9 @@ class LivePageState extends State<LivePage> {
         playing = state == ZegoMediaPlayerState.Playing;
       });
     };
+    String streamID = "music" + widget.roomID;
+
+    await ZegoExpressEngine.instance.startPublishingStream(streamID);
   }
 
   Future<Map<Duration, String>> parseLyrics(lyrics) async {
@@ -257,13 +257,15 @@ class LivePageState extends State<LivePage> {
 
   void onPlayerRecvSEI(String streamID, Uint8List data) {
     String dataString = utf8.decode(data);
+
     try {
       Map<String, dynamic> jsonObject = jsonDecode(dataString);
       String KEY_PROGRESS_IN_MS = "KEY_PROGRESS_IN_MS";
       int progress = jsonObject[KEY_PROGRESS_IN_MS];
+      print('PROGRESSSSSS::::::::::::' + progress.toString());
       setState(() {
         AudiencEsliderProgress = progress.toDouble();
-        AudienceplayProgress = progress;
+        playProgress = progress;
       });
     } catch (e) {
       print(e);
@@ -277,7 +279,10 @@ class LivePageState extends State<LivePage> {
       };
       String jsonData = jsonEncode(localMusicProcessStatusJsonObject);
       Uint8List data = utf8.encode(jsonData);
-      ZegoExpressEngine.instance.sendSEI(data, data.length);
+      ZegoExpressEngine.instance.sendSEI(
+        data,
+        data.length,
+      );
     } catch (e) {
       print(e);
     }
@@ -322,10 +327,7 @@ class LivePageState extends State<LivePage> {
 
   @override
   void initState() {
-    if (!widget.isHost) {
-      listnerEventHandler();
-      // startListenEvent();
-    } else {}
+    listnerEventHandler();
 
     super.initState();
   }
