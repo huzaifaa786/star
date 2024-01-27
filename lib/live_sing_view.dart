@@ -1,6 +1,8 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:star/constant.dart';
+import 'package:zego_express_engine/zego_express_engine.dart';
 import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_audio_room.dart';
 
 class LiveSingView extends StatefulWidget {
@@ -29,6 +31,22 @@ class _LiveSingViewState extends State<LiveSingView> {
       LyricsModelBuilder.create().bindLyricToMain(lyricsContent).getModel();
 
   // ********** LYRICS ****************
+  void onMediaPlayerPlayingProgress(
+      ZegoMediaPlayer mediaPlayer, int miliseconds) {
+    print('AAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    print(miliseconds.toString());
+  }
+
+  _eventListeners() async {
+    ZegoExpressEngine.onMediaPlayerPlayingProgress =
+        onMediaPlayerPlayingProgress;
+  }
+
+  @override
+  void initState() {
+    _eventListeners();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,9 +180,17 @@ class _LiveSingViewState extends State<LiveSingView> {
       widget.isHost
           ? MaterialButton(
               onPressed: () {
-                liveController.media.play(
-                    filePathOrURL:
-                        "https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download");
+                liveController.media.pickFile().then((files) {
+                  if (files.isEmpty) {
+                    debugPrint('files is empty');
+                  } else {
+                    final mediaFile = files.first;
+                    var targetPathOrURL = mediaFile.path ?? '';
+                    liveController.media.play(
+                      filePathOrURL: targetPathOrURL,
+                    );
+                  }
+                });
               },
               child: Text('Play'),
             )
