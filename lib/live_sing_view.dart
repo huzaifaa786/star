@@ -31,6 +31,11 @@ class _LiveSingViewState extends State<LiveSingView> {
       LyricsModelBuilder.create().bindLyricToMain(lyricsContent).getModel();
 
   // ********** LYRICS ****************
+
+  // ********** Music ****************
+
+  ZegoMediaPlayer? mediaPlayer;
+  // ********** Music ****************
   void onMediaPlayerPlayingProgress(
       ZegoMediaPlayer mediaPlayer, int miliseconds) {
     print('AAAAAAAAAAAAAAAAAAAAAAAAAAA');
@@ -40,6 +45,26 @@ class _LiveSingViewState extends State<LiveSingView> {
   _eventListeners() async {
     ZegoExpressEngine.onMediaPlayerPlayingProgress =
         onMediaPlayerPlayingProgress;
+  }
+
+  void playSong() async {
+    mediaPlayer = await ZegoExpressEngine.instance.createMediaPlayer();
+    if (mediaPlayer != null) {
+      await mediaPlayer!.enableAux(true);
+      await mediaPlayer!
+          .loadResource(
+              "https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
+          .then((ZegoMediaPlayerLoadResourceResult result) => {
+                debugPrint(result.errorCode.toString()),
+                if (result.errorCode == 0)
+                  {
+                    mediaPlayer!.start(),
+                    // setEventHandler(),
+                  }
+                else
+                  {}
+              });
+    }
   }
 
   @override
