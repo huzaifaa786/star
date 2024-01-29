@@ -120,7 +120,7 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
   }
 
   Widget backgroundImage() {
-    return Image.asset('assets/images/audio_bg.png',
+    return Image.asset('assets/images/background.jpg',
         width: double.infinity, height: double.infinity, fit: BoxFit.fill);
   }
 

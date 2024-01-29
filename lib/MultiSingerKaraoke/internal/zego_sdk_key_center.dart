@@ -1,5 +1,5 @@
 class SDKKeyCenter {
-  static const int appID = 653933933;
-  static const String serverSecret = "0118a0554ed00f154fc6c4a51b10b959";
-  static const String appSign = "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40";
+  static const int appID = 949581517;
+  static const String serverSecret = "5a7a868561581b7cbbb5fe05fed41efd";
+  static const String appSign = "cbcb6d16aeaaf7c597ec01f484ba87dc82803a4995096069ea03150a917ed2e0";
 }

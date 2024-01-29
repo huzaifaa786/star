@@ -16,20 +16,24 @@ class _AudioRoomEntryState extends State<AudioRoomEntry> {
       TextEditingController(text: Random().nextInt(9999999).toString());
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-          Text('LiveAudioRoom Demo:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-        ]),
-        roomIDTextField(roomIDController),
-        const SizedBox(height: 20),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          liveAudioRoomButton(ZegoLiveAudioRoomRole.host),
-          liveAudioRoomButton(ZegoLiveAudioRoomRole.audience),
-        ]),
-        const SizedBox(height: 30),
-      ],
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            const Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+              Text('LiveAudioRoom Demo:',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+            ]),
+            roomIDTextField(roomIDController),
+            const SizedBox(height: 20),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              liveAudioRoomButton(ZegoLiveAudioRoomRole.host),
+              liveAudioRoomButton(ZegoLiveAudioRoomRole.audience),
+            ]),
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
     );
   }
 
