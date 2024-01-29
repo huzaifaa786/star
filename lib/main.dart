@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:star/MultiSingerKaraoke/login_page.dart';
 import 'package:star/constant.dart';
 import 'package:star/home_page.dart';
 import 'package:star/live_page.dart';
@@ -9,22 +10,17 @@ import 'package:star/flutter_lyrics.dart';
 
 import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_audio_room.dart';
 
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
-  final navigatorKey = GlobalKey<NavigatorState>();
+
   ZegoUIKit().initLog().then((value) {
-    runApp(MyApp(
-      navigatorKey: navigatorKey,
-    ));
+    runApp(MyApp());
   });
 }
 
 class MyApp extends StatefulWidget {
-  final GlobalKey<NavigatorState> navigatorKey;
-
   const MyApp({
-    required this.navigatorKey,
     Key? key,
   }) : super(key: key);
 
@@ -44,12 +40,14 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      navigatorKey: widget.navigatorKey,
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: KaraokeAppHomePage(),
+      home: LoginPage(
+        title: "Login Page",
+      ),
     );
   }
 }

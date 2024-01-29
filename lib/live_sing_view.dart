@@ -64,7 +64,7 @@ class _LiveSingViewState extends State<LiveSingView> {
   }
 
   void onIMRecvCustomCommand(String roomID, ZegoUser fromUser, String command) {
-    print(command);
+    print('command :'+command);
   }
 
   void sendSEIMessage(int millisecond) {
