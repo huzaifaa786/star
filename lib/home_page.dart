@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:star/constant.dart';
 import 'package:star/live_page.dart';
+import 'package:star/live_sing_view.dart';
 import 'package:star/solo/solo_singing.dart';
 import 'package:star/solo_sing_view.dart';
 
@@ -101,9 +102,9 @@ class _KaraokeAppHomePageState extends State<KaraokeAppHomePage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => LivePage(
+            builder: (context) => SoloSingView(
                   roomID: roomID,
-                  // userID: userID,
+                  userID: userID,
                   isHost: isHost,
                 )));
   }

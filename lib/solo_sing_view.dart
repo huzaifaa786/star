@@ -33,6 +33,12 @@ class _SoloSingViewState extends State<SoloSingView> {
   bool isHost = false;
   Map<Duration, String>? lyrics;
 
+  int playProgress = 0;
+  int audiencePlayProgress = 0;
+  var lyricUI = UINetease();
+  var playing = false;
+  var lyricModel =
+      LyricsModelBuilder.create().bindLyricToMain(lyricsContent).getModel();
   ZegoEngineProfile profile = ZegoEngineProfile(
     653933933,
     ZegoScenario.Karaoke,
@@ -45,7 +51,7 @@ class _SoloSingViewState extends State<SoloSingView> {
     await ZegoExpressEngine.createEngineWithProfile(profile);
     setEventHandler();
     userID = widget.userID;
-    userName = widget.userID + '_user';
+    userName = widget.userID;
     roomID = widget.roomID;
     isHost = widget.isHost;
     ZegoUser user = ZegoUser(userID, userName);
@@ -96,19 +102,11 @@ class _SoloSingViewState extends State<SoloSingView> {
       Map<String, dynamic> jsonObject = jsonDecode(dataString);
       String KEY_PROGRESS_IN_MS = "KEY_PROGRESS_IN_MS";
       int progress = jsonObject[KEY_PROGRESS_IN_MS];
-      Duration currentDuration = Duration(milliseconds: progress);
 
-      var previousTimestamps =
-          lyrics!.keys.where((k) => k as Duration <= currentDuration);
-
-      if (previousTimestamps.isNotEmpty) {
-        Duration latestTimestamp = previousTimestamps
-            .reduce((Duration a, Duration b) => a > b ? a : b);
-
-        setState(() {
-          currentLyrics = lyrics![latestTimestamp] ?? '';
-        });
-      }
+      setState(() {
+        playing = true;
+        audiencePlayProgress = progress;
+      });
     } catch (e) {
       print(e);
     }
@@ -125,19 +123,9 @@ class _SoloSingViewState extends State<SoloSingView> {
 
   void onMediaPlayerPlayingProgress(
       ZegoMediaPlayer player, int miliseconds) async {
-    Duration currentDuration = Duration(milliseconds: miliseconds);
-
-    var previousTimestamps =
-        lyrics!.keys.where((k) => k as Duration <= currentDuration);
-
-    if (previousTimestamps.isNotEmpty) {
-      Duration latestTimestamp =
-          previousTimestamps.reduce((Duration a, Duration b) => a > b ? a : b);
-
-      setState(() {
-        singerCurrentLyrics = lyrics![latestTimestamp] ?? '';
-      });
-    }
+    setState(() {
+      playProgress = miliseconds;
+    });
     // Send SEI infomations
     sendSEIMessage(miliseconds);
   }
@@ -154,12 +142,18 @@ class _SoloSingViewState extends State<SoloSingView> {
         .loadResource(
             'https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download')
         .then((value) => {
-              if (value.errorCode == 0) {player!.start()}
+              if (value.errorCode == 0)
+                {
+                  player!.start(),
+                }
             });
   }
 
   void startSinging() async {
     await loadMusicResource();
+    setState(() {
+      playing = true;
+    });
     Random random = new Random();
     int randomInt = random.nextInt(1000);
     String streamID = "stream1" + randomInt.toString();
@@ -200,42 +194,24 @@ class _SoloSingViewState extends State<SoloSingView> {
   @override
   void initState() {
     loginRoom();
-    loadLyrics();
+    // loadLyrics();
 
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    ZegoExpressEngine.destroyEngine();
     super.dispose();
   }
 
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey,
       body: SafeArea(
           child: Column(
         children: [
-          isHost
-              ? SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  child: LyricsWidget(
-                    lyrics: lyrics!,
-                    currentLyrics: singerCurrentLyrics,
-                  ),
-                )
-              : SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Text(
-                    currentLyrics,
-                    style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+          isHost ? buildReaderWidget() : buildAudienceReaderWidget(),
           isHost
               ? MaterialButton(
                   child: Text('Start Singing'),
@@ -246,6 +222,42 @@ class _SoloSingViewState extends State<SoloSingView> {
               : Text(''),
         ],
       )),
+    );
+  }
+
+  LyricsReader buildReaderWidget() {
+    return LyricsReader(
+      padding: EdgeInsets.symmetric(horizontal: 0),
+      model: lyricModel,
+      position: playProgress,
+      lyricUi: lyricUI,
+      playing: playing,
+      size: Size(MediaQuery.of(context).size.width,
+          MediaQuery.of(context).size.height * 0.5),
+      emptyBuilder: () => Center(
+        child: Text(
+          "No lyrics",
+          style: lyricUI.getOtherMainTextStyle(),
+        ),
+      ),
+    );
+  }
+
+  LyricsReader buildAudienceReaderWidget() {
+    return LyricsReader(
+      padding: EdgeInsets.symmetric(horizontal: 0),
+      model: lyricModel,
+      position: audiencePlayProgress,
+      lyricUi: lyricUI,
+      playing: playing,
+      size: Size(MediaQuery.of(context).size.width,
+          MediaQuery.of(context).size.height * 0.5),
+      emptyBuilder: () => Center(
+        child: Text(
+          "No lyrics",
+          style: lyricUI.getOtherMainTextStyle(),
+        ),
+      ),
     );
   }
 }

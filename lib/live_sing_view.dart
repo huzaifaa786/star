@@ -1,29 +1,15 @@
-// Flutter imports:
-
-import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
-import 'package:lyrics_parser/lyrics_parser.dart';
 import 'package:star/constant.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
-
-// Package imports:
 import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_audio_room.dart';
 
-// Project imports:
-
-import 'media.dart';
-
-class LivePage extends StatefulWidget {
+class LiveSingView extends StatefulWidget {
   final String roomID;
   final bool isHost;
   final LayoutMode layoutMode;
-
-  const LivePage({
+  const LiveSingView({
     Key? key,
     required this.roomID,
     this.layoutMode = LayoutMode.defaultLayout,
@@ -31,58 +17,34 @@ class LivePage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => LivePageState();
+  State<LiveSingView> createState() => _LiveSingViewState();
 }
 
-class LivePageState extends State<LivePage> {
+class _LiveSingViewState extends State<LiveSingView> {
   final liveController = ZegoLiveAudioRoomController();
-  Widget? localView;
-  int? localViewID;
-  Widget? remoteView;
-  int? remoteViewID;
-  String _currentLyrics = '';
-  ZegoMediaPlayer? mediaPlayer;
-  ZegoEngineProfile profile = ZegoEngineProfile(
-    653933933,
-    ZegoScenario.Broadcast,
-    appSign: "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40",
-  );
 
-  // lyrics
-  double sliderProgress = 0;
+  // ********** LYRICS ****************
   int playProgress = 0;
-  double AudiencEsliderProgress = 0;
-  int AudienceplayProgress = 0;
-  double max_value = 211658;
-  bool isTap = false;
-  bool useEnhancedLrc = false;
-  var lyricModel =
-      LyricsModelBuilder.create().bindLyricToMain(lyricsContent).getModel();
   var lyricUI = UINetease();
   var playing = false;
+  var lyricModel =
+      LyricsModelBuilder.create().bindLyricToMain(lyricsContent).getModel();
 
-  var result;
+  // ********** LYRICS ****************
 
-  void initZego() async {
-    // await ZegoExpressEngine.createEngineWithProfile(profile);
+  // ********** Music ****************
 
-    // var parser = LyricsParser(lyricsContent);
-    // final result = await parser.parse();
-    // ZegoExpressEngine.instance;
-    // final lyrics = await parseLyrics(result.lyricList);
+  ZegoMediaPlayer? mediaPlayer;
+  // ********** Music ****************
+  void onMediaPlayerPlayingProgress(
+      ZegoMediaPlayer mediaPlayer, int miliseconds) {
+    print('AAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    print(miliseconds.toString());
+  }
 
-    // if (mediaPlayer != null) {
-    //   await mediaPlayer!
-    //       .loadResource(
-    //           "https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
-    //       .then((ZegoMediaPlayerLoadResourceResult result) {
-    //     if (result.errorCode == 0) {
-    //       playMusicAndSyncLyrics(mediaPlayer!, lyrics);
-    //     } else {
-    //       // loadResource errorcode: errorcode
-    //     }
-    //   });
-    // } else {}
+  _eventListeners() async {
+    ZegoExpressEngine.onMediaPlayerPlayingProgress =
+        onMediaPlayerPlayingProgress;
   }
 
   void playSong() async {
@@ -97,7 +59,7 @@ class LivePageState extends State<LivePage> {
                 if (result.errorCode == 0)
                   {
                     mediaPlayer!.start(),
-                    setEventHandler(),
+                    // setEventHandler(),
                   }
                 else
                   {}
@@ -105,268 +67,13 @@ class LivePageState extends State<LivePage> {
     }
   }
 
-  listnerEventHandler() async {
-    ZegoExpressEngine.onRoomStreamUpdate = onRoomStateUpdated;
-    ZegoExpressEngine.onPlayerRecvSEI = onPlayerRecvSEI;
-    ZegoExpressEngine.onMediaPlayerRenderingProgress =
-        onMediaPlayerRenderingProgress;
-  }
-
-  setEventHandler() async {
-    setState(() {
-      playing = true;
-    });
-
-    ZegoExpressEngine.onMediaPlayerPlayingProgress =
-        (mediaPlayer, millisecond) {
-      sendSEIMessage(millisecond);
-      setState(() {
-        sliderProgress = millisecond.toDouble();
-        playProgress = millisecond;
-      });
-    };
-
-    ZegoExpressEngine.onMediaPlayerStateUpdate =
-        (mediaPlayer, state, errorCode) {
-      setState(() {
-        playing = state == ZegoMediaPlayerState.Playing;
-      });
-    };
-    String streamID = "music" + widget.roomID;
-
-    await ZegoExpressEngine.instance.startPublishingStream(streamID);
-  }
-
-  Future<Map<Duration, String>> parseLyrics(lyrics) async {
-    Map<Duration, String> lyricsTimingMap = {};
-    for (final lcr in lyrics) {
-      Duration timestamp = Duration(
-          milliseconds: int.parse(lcr.startTimeMillisecond.toString()));
-      lyricsTimingMap[timestamp] = lcr.content;
-    }
-    return lyricsTimingMap;
-  }
-
-  void playMusicAndSyncLyrics(ZegoMediaPlayer player, lyricsTimingMap) {
-    player.start();
-    // _startSinging();
-    Timer.periodic(const Duration(milliseconds: 100), (Timer t) {
-      player.getCurrentProgress().then((currentPosition) {
-        Duration currentDuration = Duration(milliseconds: currentPosition);
-
-        var previousTimestamps =
-            lyricsTimingMap.keys.where((k) => k as Duration <= currentDuration);
-
-        if (previousTimestamps.isNotEmpty) {
-          Duration latestTimestamp = previousTimestamps
-              .reduce((Duration a, Duration b) => a > b ? a : b);
-
-          setState(() {
-            _currentLyrics = lyricsTimingMap[latestTimestamp] ?? '';
-          });
-        }
-      });
-    });
-  }
-
-  void startListenEvent() {
-    // Callback for updates on the status of other users in the room.
-    // Users can only receive callbacks when the isUserStatusNotify property of ZegoRoomConfig is set to `true` when logging in to the room (loginRoom).
-    ZegoExpressEngine.onRoomUserUpdate =
-        (roomID, updateType, List<ZegoUser> userList) {
-      debugPrint(
-          'onRoomUserUpdate: roomID: $roomID, updateType: ${updateType.name}, userList: ${userList.map((e) => e.userID)}');
-    };
-    // Callback for updates on the status of the streams in the room.
-    ZegoExpressEngine.onRoomStreamUpdate =
-        (roomID, updateType, List<ZegoStream> streamList, extendedData) {
-      debugPrint(
-          'onRoomStreamUpdate: roomID: $roomID, updateType: $updateType, streamList: ${streamList.map((e) => e.streamID)}, extendedData: $extendedData');
-      if (updateType == ZegoUpdateType.Add) {
-        for (final stream in streamList) {
-          startPlayStream(stream.streamID);
-        }
-      } else {
-        for (final stream in streamList) {
-          stopPlayStream(stream.streamID);
-        }
-      }
-    };
-    // Callback for updates on the current user's room connection status.
-    ZegoExpressEngine.onRoomStateUpdate =
-        (roomID, state, errorCode, extendedData) {
-      debugPrint(
-          'onRoomStateUpdate: roomID: $roomID, state: ${state.name}, errorCode: $errorCode, extendedData: $extendedData');
-    };
-
-    // Callback for updates on the current user's stream publishing changes.
-    ZegoExpressEngine.onPublisherStateUpdate =
-        (streamID, state, errorCode, extendedData) {
-      debugPrint(
-          'onPublisherStateUpdate: streamID: $streamID, state: ${state.name}, errorCode: $errorCode, extendedData: $extendedData');
-    };
-  }
-
-  void stopListenEvent() {
-    ZegoExpressEngine.onRoomUserUpdate = null;
-    ZegoExpressEngine.onRoomStreamUpdate = null;
-    ZegoExpressEngine.onRoomStateUpdate = null;
-    ZegoExpressEngine.onPublisherStateUpdate = null;
-  }
-
-  Future<void> startPreview() async {
-    await ZegoExpressEngine.instance.createCanvasView((viewID) {
-      localViewID = viewID;
-      ZegoCanvas previewCanvas =
-          ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
-      ZegoExpressEngine.instance.startPreview(canvas: previewCanvas);
-    }).then((canvasViewWidget) {
-      setState(() => localView = canvasViewWidget);
-    });
-  }
-
-  Future<void> stopPreview() async {
-    ZegoExpressEngine.instance.stopPreview();
-    if (localViewID != null) {
-      await ZegoExpressEngine.instance.destroyCanvasView(localViewID!);
-      setState(() {
-        localViewID = null;
-        localView = null;
-      });
-    }
-  }
-
-  void onRoomStateUpdated(String roomID, ZegoUpdateType updateType,
-      List<ZegoStream> streamList, extendedData) {
-    debugPrint('AAAAAAAAAAAAAAADDDDDDDDDDDDDDDFFFFFFFFFFFFFGGGGGG');
-    String streamID = "music" + widget.roomID;
-    ZegoStream? stream =
-        streamList.where((element) => element.streamID == streamID).first;
-
-    if (stream.streamID.isNotEmpty) {
-      String playStreamID = stream.streamID;
-      if (updateType == ZegoUpdateType.Add) {
-        ZegoExpressEngine.instance
-            .setPlayStreamBufferIntervalRange(playStreamID, 500, 4000);
-        ZegoExpressEngine.instance.startPlayingStream(playStreamID);
-
-        setState(() {
-          playing = true;
-        });
-      } else {
-        ZegoExpressEngine.instance.stopPlayingStream(playStreamID);
-      }
-    }
-  }
-
-  void onPlayerRecvSEI(String streamID, Uint8List data) {
-    String dataString = utf8.decode(data);
-
-    // try {
-    Map<String, dynamic> jsonObject = jsonDecode(dataString);
-    String KEY_PROGRESS_IN_MS = "KEY_PROGRESS_IN_MS";
-    int progress = jsonObject[KEY_PROGRESS_IN_MS];
-    debugPrint('on seat opened');
-
-    setState(() {
-      AudiencEsliderProgress = progress.toDouble();
-      playProgress = progress;
-    });
-    // } catch (e) {
-    //   print(e);
-    // }
-  }
-
-  void onMediaPlayerRenderingProgress(ZegoMediaPlayer mediaPlayer, int data) {
-    print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa');
-    setState(() {
-      AudiencEsliderProgress = data.toDouble();
-      playProgress = data;
-    });
-    // String dataString = utf8.decode(data);
-
-    // // try {
-    // Map<String, dynamic> jsonObject = jsonDecode(dataString);
-    // String KEY_PROGRESS_IN_MS = "KEY_PROGRESS_IN_MS";
-    // int progress = jsonObject[KEY_PROGRESS_IN_MS];
-    // debugPrint('on seat opened');
-
-    // setState(() {
-    //   AudiencEsliderProgress = progress.toDouble();
-    //   playProgress = progress;
-    // });
-    // } catch (e) {
-    //   print(e);
-    // }
-  }
-
-  void sendSEIMessage(int millisecond) {
-    try {
-      Map<String, dynamic> localMusicProcessStatusJsonObject = {
-        'KEY_PROGRESS_IN_MS': millisecond,
-      };
-      String jsonData = jsonEncode(localMusicProcessStatusJsonObject);
-      Uint8List data = utf8.encode(jsonData);
-      ZegoExpressEngine.instance.sendSEI(
-        data,
-        data.length,
-      );
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> startPublish() async {
-    // After calling the `loginRoom` method, call this method to publish streams.
-    // The StreamID must be unique in the room.
-    String streamID = '${widget.roomID}_${localUserID}_call';
-    return ZegoExpressEngine.instance.startPublishingStream(streamID);
-  }
-
-  Future<void> stopPublish() async {
-    return ZegoExpressEngine.instance.stopPublishingStream();
-  }
-
-  Future<void> startPlayStream(String streamID) async {
-    // Start to play streams. Set the view for rendering the remote streams.
-    await ZegoExpressEngine.instance.createCanvasView((viewID) {
-      remoteViewID = viewID;
-      ZegoCanvas canvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
-      ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
-    }).then((canvasViewWidget) {
-      setState(() => remoteView = canvasViewWidget);
-    });
-  }
-
-  Future<void> stopPlayStream(String streamID) async {
-    ZegoExpressEngine.instance.stopPlayingStream(streamID);
-    if (remoteViewID != null) {
-      ZegoExpressEngine.instance.destroyCanvasView(remoteViewID!);
-      setState(() {
-        remoteViewID = null;
-        remoteView = null;
-      });
-    }
-  }
-
-  initAudience() async {
-    await ZegoExpressEngine.createEngineWithProfile(profile);
-  }
-
   @override
   void initState() {
-    listnerEventHandler();
-
+    _eventListeners();
     super.initState();
   }
 
   @override
-  void dispose() {
-    stopListenEvent();
-
-    super.dispose();
-  }
-
   Widget build(BuildContext context) {
     return SafeArea(
       child: LayoutBuilder(
@@ -471,37 +178,49 @@ class LivePageState extends State<LivePage> {
     );
   }
 
-  Stack buildAudienceReaderWidget() {
-    return Stack(
-      children: [
-        LyricsReader(
-          padding: EdgeInsets.symmetric(horizontal: 0),
-          model: lyricModel,
-          position: AudienceplayProgress,
-          lyricUi: lyricUI,
-          playing: playing,
-          size: Size(MediaQuery.of(context).size.width,
-              MediaQuery.of(context).size.height * 0.5),
-          emptyBuilder: () => Center(
-            child: Text(
-              "No lyrics",
-              style: lyricUI.getOtherMainTextStyle(),
-            ),
-          ),
-        )
-      ],
-    );
-  }
+  // Stack buildAudienceReaderWidget() {
+  //   return Stack(
+  //     children: [
+  //       LyricsReader(
+  //         padding: EdgeInsets.symmetric(horizontal: 0),
+  //         model: lyricModel,
+  //         position: AudienceplayProgress,
+  //         lyricUi: lyricUI,
+  //         playing: playing,
+  //         size: Size(MediaQuery.of(context).size.width,
+  //             MediaQuery.of(context).size.height * 0.5),
+  //         emptyBuilder: () => Center(
+  //           child: Text(
+  //             "No lyrics",
+  //             style: lyricUI.getOtherMainTextStyle(),
+  //           ),
+  //         ),
+  //       )
+  //     ],
+  //   );
+  // }
 
   Widget foreground(BoxConstraints constraints) {
     return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-      MaterialButton(
-        onPressed: () {
-          playSong();
-        },
-        child: Text('Play'),
-      ),
-      widget.isHost ? buildReaderWidget() : buildAudienceReaderWidget()
+      widget.isHost
+          ? MaterialButton(
+              onPressed: () {
+                liveController.media.pickFile().then((files) {
+                  if (files.isEmpty) {
+                    debugPrint('files is empty');
+                  } else {
+                    final mediaFile = files.first;
+                    var targetPathOrURL = mediaFile.path ?? '';
+                    liveController.media.play(
+                      filePathOrURL: targetPathOrURL,
+                    );
+                  }
+                });
+              },
+              child: Text('Play'),
+            )
+          : Text(''),
+      buildReaderWidget(),
     ]);
     // return Positioned(
     //     top: 290,
