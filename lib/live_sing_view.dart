@@ -79,7 +79,7 @@ class _LiveSingViewState extends State<LiveSingView> {
       child: FutureBuilder(
           future: Future.delayed(Duration(seconds: 3)),
           builder: (context, snapshot) {
-            if(snapshot.connectionState == ConnectionState.waiting){
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
             return LayoutBuilder(
@@ -215,17 +215,7 @@ class _LiveSingViewState extends State<LiveSingView> {
       widget.isHost
           ? MaterialButton(
               onPressed: () {
-                liveController.media.pickFile().then((files) {
-                  if (files.isEmpty) {
-                    debugPrint('files is empty');
-                  } else {
-                    final mediaFile = files.first;
-                    var targetPathOrURL = mediaFile.path ?? '';
-                    liveController.media.play(
-                      filePathOrURL: targetPathOrURL,
-                    );
-                  }
-                });
+                playSong();
               },
               child: Text('Play'),
             )
@@ -479,7 +469,7 @@ class _LiveSingViewState extends State<LiveSingView> {
                     Navigator.of(context).pop();
 
                     liveController
-                        ?.inviteAudienceToTakeSeat(user.id)
+                        .inviteAudienceToTakeSeat(user.id)
                         .then((result) {
                       debugPrint('invite audience to take seat result:$result');
                     });
