@@ -39,15 +39,14 @@ class _LiveSingViewState extends State<LiveSingView> {
 
   ZegoMediaPlayer? mediaPlayer;
   // ********** Music ****************
-  void onMediaPlayerPlayingProgress(
-      ZegoMediaPlayer mediaPlayer, int miliseconds) {
+  void onMediaPlayerPlayingProgress(String mediaPlayer, Uint8List miliseconds) {
     print('AAAAAAAAAAAAAAAAAAAAAAAAAAA');
     print(miliseconds.toString());
   }
 
   _eventListeners() async {
     try {
-      ZegoExpressEngine.onMediaPlayerPlayingProgress =
+      ZegoExpressEngine.onPlayerRecvAudioSideInfo =
           onMediaPlayerPlayingProgress;
     } catch (e) {
       debugPrint(e.toString());
