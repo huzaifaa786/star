@@ -25,6 +25,7 @@ class LiveSingView extends StatefulWidget {
 
 class _LiveSingViewState extends State<LiveSingView> {
   final liveController = ZegoLiveAudioRoomController();
+  List<ZegoUser> zegoUsers = [];
 
   // ********** LYRICS ****************
   int playProgress = 0;
@@ -39,31 +40,46 @@ class _LiveSingViewState extends State<LiveSingView> {
 
   ZegoMediaPlayer? mediaPlayer;
   // ********** Music ****************
+
+  ZegoEngineProfile profile = ZegoEngineProfile(
+    653933933,
+    ZegoScenario.Karaoke,
+    appSign: "17be0bfe3337e6f57bcd98b8975b771a733ef9b344c08978c41a2c77f2b34b40",
+  );
+
   void onMediaPlayerPlayingProgress(String mediaPlayer, Uint8List miliseconds) {
     print('AAAAAAAAAAAAAAAAAAAAAAAAAAA');
     print(miliseconds.toString());
   }
 
   _eventListeners() async {
+    await ZegoExpressEngine.createEngineWithProfile(profile);
     try {
-      ZegoExpressEngine.onPlayerRecvAudioSideInfo =
-          onMediaPlayerPlayingProgress;
+      ZegoExpressEngine.onIMRecvCustomCommand = onIMRecvCustomCommand;
+      print('BBBBBBBBBBBBBBBBBBBDDDDDDDDDDDDDDD');
     } catch (e) {
+      print('AAAAAAAAAAAAAAAAAAAAAAAAAAA');
       debugPrint(e.toString());
     }
   }
 
+  void onIMRecvCustomCommand(String roomID, ZegoUser fromUser, String command) {
+    print(command);
+  }
+
   void sendSEIMessage(int millisecond) {
     try {
-      Map<String, dynamic> localMusicProcessStatusJsonObject = {
-        'KEY_PROGRESS_IN_MS': millisecond,
-      };
-      String jsonData = jsonEncode(localMusicProcessStatusJsonObject);
-      Uint8List data = utf8.encode(jsonData);
-      ZegoExpressEngine.instance.sendAudioSideInfo(
-        data,
-        millisecond.toDouble(),
-      );
+      ZegoExpressEngine.instance
+          .sendCustomCommand(widget.roomID, millisecond.toString(), zegoUsers);
+      // Map<String, dynamic> localMusicProcessStatusJsonObject = {
+      //   'KEY_PROGRESS_IN_MS': millisecond,
+      // };
+      // String jsonData = jsonEncode(localMusicProcessStatusJsonObject);
+      // Uint8List data = utf8.encode(jsonData);
+      // ZegoExpressEngine.instance.sendSEI(
+      //   data,
+      //   data.length,
+      // );
     } catch (e) {
       print(e);
     }
@@ -115,7 +131,10 @@ class _LiveSingViewState extends State<LiveSingView> {
 
   @override
   void initState() {
-    _eventListeners();
+    if (!widget.isHost) {
+      _eventListeners();
+    }
+
     super.initState();
   }
 
@@ -147,6 +166,9 @@ class _LiveSingViewState extends State<LiveSingView> {
             ..backgroundMediaConfig = ZegoBackgroundMediaConfig()
             ..userAvatarUrl = 'https://robohash.org/$localUserID.png'
             ..onUserCountOrPropertyChanged = (List<ZegoUIKitUser> users) {
+              setState(() {
+                zegoUsers = users.map((e) => e.toZegoUser()).toList();
+              });
               debugPrint(
                   'onUserCountOrPropertyChanged:${users.map((e) => e.toString())}');
             }
