@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
@@ -43,8 +46,52 @@ class _LiveSingViewState extends State<LiveSingView> {
   }
 
   _eventListeners() async {
+    try {
+      ZegoExpressEngine.onMediaPlayerPlayingProgress =
+          onMediaPlayerPlayingProgress;
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void sendSEIMessage(int millisecond) {
+    try {
+      Map<String, dynamic> localMusicProcessStatusJsonObject = {
+        'KEY_PROGRESS_IN_MS': millisecond,
+      };
+      String jsonData = jsonEncode(localMusicProcessStatusJsonObject);
+      Uint8List data = utf8.encode(jsonData);
+      ZegoExpressEngine.instance.sendAudioSideInfo(
+        data,
+        millisecond.toDouble(),
+      );
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  setEventHandler() async {
+    setState(() {
+      playing = true;
+    });
+
     ZegoExpressEngine.onMediaPlayerPlayingProgress =
-        onMediaPlayerPlayingProgress;
+        (mediaPlayer, millisecond) {
+      sendSEIMessage(millisecond);
+      setState(() {
+        playProgress = millisecond;
+      });
+    };
+
+    ZegoExpressEngine.onMediaPlayerStateUpdate =
+        (mediaPlayer, state, errorCode) {
+      setState(() {
+        playing = state == ZegoMediaPlayerState.Playing;
+      });
+    };
+    // String streamID = "music" + widget.roomID;
+
+    // await ZegoExpressEngine.instance.startPublishingStream(streamID);
   }
 
   void playSong() async {
@@ -59,7 +106,7 @@ class _LiveSingViewState extends State<LiveSingView> {
                 if (result.errorCode == 0)
                   {
                     mediaPlayer!.start(),
-                    // setEventHandler(),
+                    setEventHandler(),
                   }
                 else
                   {}
