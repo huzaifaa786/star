@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:star/MultiSingerKaraoke/components/audio_room/seat_item_view.dart';
 import 'package:star/MultiSingerKaraoke/components/zego_apply_cohost_list_page.dart';
 
@@ -12,6 +13,7 @@ import 'package:star/MultiSingerKaraoke/internal/sdk/express/express_service.dar
 import 'package:star/MultiSingerKaraoke/internal/sdk/zim/zim_service.dart';
 import 'package:star/MultiSingerKaraoke/internal/zego_sdk_key_center.dart';
 import 'package:star/MultiSingerKaraoke/internal/zego_sdk_manager.dart';
+import 'package:star/constant.dart';
 import 'package:star/utilties/zegocloud_token.dart';
 
 class MultiSingersKaraoke extends StatefulWidget {
@@ -28,6 +30,19 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
   List<StreamSubscription> subscriptions = [];
   String? currentRequestID;
   ValueNotifier<bool> isApplyStateNoti = ValueNotifier(false);
+  // ********** LYRICS ****************
+  int playProgress = 0;
+  var lyricUI = UINetease();
+  var playing = false;
+  var lyricModel =
+      LyricsModelBuilder.create().bindLyricToMain(lyricsContent).getModel();
+
+  // ********** LYRICS ****************
+
+  // ********** Music ****************
+
+  ZegoMediaPlayer? mediaPlayer;
+  // ********** Music ****************
 
   @override
   void initState() {
@@ -48,12 +63,13 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
       zimService.onOutgoingRoomRequestRejectedStreamCtrl.stream
           .listen(onOutgoingRoomRequestRejected),
     ]);
-
+    if (widget.role == ZegoLiveAudioRoomRole.audience) {
+      _eventListeners();
+    }
     loginRoom();
   }
 
   void loginRoom() {
-    
     final token = kIsWeb
         ? ZegoTokenUtils.generateToken(SDKKeyCenter.appID,
             SDKKeyCenter.serverSecret, ZEGOSDKManager().currentUser!.userID)
@@ -69,6 +85,87 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
             SnackBar(content: Text('login room failed: ${result.errorCode}')));
       }
     });
+  }
+
+  void sendSEIMessage(int millisecond) {
+    try {
+      Map<String, dynamic> localMusicProcessStatusJsonObject = {
+        'KEY_PROGRESS_IN_MS': millisecond,
+      };
+      String jsonData = jsonEncode(localMusicProcessStatusJsonObject);
+      Uint8List data = utf8.encode(jsonData);
+      ZegoExpressEngine.instance.sendSEI(
+        data,
+        data.length,
+      );
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void onPlayerRecvSEI(String streamID, Uint8List data) {
+    String dataString = utf8.decode(data);
+    try {
+      Map<String, dynamic> jsonObject = jsonDecode(dataString);
+      String KEY_PROGRESS_IN_MS = "KEY_PROGRESS_IN_MS";
+      int progress = jsonObject[KEY_PROGRESS_IN_MS];
+
+      setState(() {
+        playing = true;
+        playProgress = progress;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  _eventListeners() async {
+    ZegoExpressEngine.onPlayerRecvSEI = onPlayerRecvSEI;
+    print('BBBBBBBBBBBBBBBBBBBDDDDDDDDDDDDDDD');
+  }
+
+  setEventHandler() async {
+    setState(() {
+      playing = true;
+    });
+
+    ZegoExpressEngine.onMediaPlayerPlayingProgress =
+        (mediaPlayer, millisecond) {
+      sendSEIMessage(millisecond);
+      setState(() {
+        playProgress = millisecond;
+      });
+    };
+
+    ZegoExpressEngine.onMediaPlayerStateUpdate =
+        (mediaPlayer, state, errorCode) {
+      setState(() {
+        playing = state == ZegoMediaPlayerState.Playing;
+      });
+    };
+    // String streamID = "music" + widget.roomID;
+
+    // await ZegoExpressEngine.instance.startPublishingStream(streamID);
+  }
+
+  void playSong() async {
+    mediaPlayer = await ZegoExpressEngine.instance.createMediaPlayer();
+    if (mediaPlayer != null) {
+      await mediaPlayer!.enableAux(true);
+      await mediaPlayer!
+          .loadResource(
+              "https://drive.usercontent.google.com/u/0/uc?id=10BZKh-i7PGEVZAIlD-jwb4HUMHjMtsw9&export=download")
+          .then((ZegoMediaPlayerLoadResourceResult result) => {
+                debugPrint(result.errorCode.toString()),
+                if (result.errorCode == 0)
+                  {
+                    mediaPlayer!.start(),
+                    setEventHandler(),
+                  }
+                else
+                  {}
+              });
+    }
   }
 
   @override
@@ -112,10 +209,33 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
             Positioned(top: 30, left: 10, child: roomTitle()),
             Positioned(top: 30, right: 20, child: leaveButton()),
             Positioned(top: 100, child: seatListView()),
+            Positioned(top: 130, child: buildReaderWidget()),
             Positioned(bottom: 20, left: 0, right: 0, child: bottomView()),
           ],
         ),
       ),
+    );
+  }
+
+  Stack buildReaderWidget() {
+    return Stack(
+      children: [
+        LyricsReader(
+          padding: EdgeInsets.symmetric(horizontal: 0),
+          model: lyricModel,
+          position: playProgress,
+          lyricUi: lyricUI,
+          playing: playing,
+          size: Size(MediaQuery.of(context).size.width,
+              MediaQuery.of(context).size.height * 0.5),
+          emptyBuilder: () => Center(
+            child: Text(
+              "No lyrics",
+              style: lyricUI.getOtherMainTextStyle(),
+            ),
+          ),
+        )
+      ],
     );
   }
 
@@ -157,6 +277,8 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                musicButton(),
+                const SizedBox(width: 20),
                 lockSeatButton(),
                 const SizedBox(width: 10),
                 requestMemberButton(),
@@ -223,6 +345,17 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
           child: micIsOn ? const Icon(Icons.mic) : const Icon(Icons.mic_off),
         );
       },
+    );
+  }
+
+  Widget musicButton() {
+    return ElevatedButton(
+      onPressed: () {
+        if (!playing) {
+          playSong();
+        }
+      },
+      child: playing ? const Icon(Icons.pause) : const Icon(Icons.play_arrow),
     );
   }
 

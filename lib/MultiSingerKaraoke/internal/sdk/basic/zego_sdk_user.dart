@@ -17,6 +17,7 @@ class ZegoSDKUser {
   ValueNotifier<bool> isUsingSpeaker = ValueNotifier(true);
   ValueNotifier<bool> isMicOnNotifier = ValueNotifier(false);
   ValueNotifier<bool> isUsingFrontCameraNotifier = ValueNotifier(true);
+  ValueNotifier<bool> isMusicPlaying = ValueNotifier(false);
 
   ValueNotifier<String?> avatarUrlNotifier = ValueNotifier(null);
 }
