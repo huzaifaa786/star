@@ -30,17 +30,16 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
   List<StreamSubscription> subscriptions = [];
   String? currentRequestID;
   ValueNotifier<bool> isApplyStateNoti = ValueNotifier(false);
+
   // ********** LYRICS ****************
   int playProgress = 0;
-  var lyricUI = UINetease();
+  var lyricUI = UINetease(defaultSize: 30,defaultExtSize: 20,);
   var playing = false;
   var lyricModel =
       LyricsModelBuilder.create().bindLyricToMain(lyricsContent).getModel();
-
   // ********** LYRICS ****************
 
   // ********** Music ****************
-
   ZegoMediaPlayer? mediaPlayer;
   // ********** Music ****************
 
@@ -209,7 +208,7 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
             Positioned(top: 30, left: 10, child: roomTitle()),
             Positioned(top: 30, right: 20, child: leaveButton()),
             Positioned(top: 100, child: seatListView()),
-            Positioned(top: 130, child: buildReaderWidget()),
+            Positioned(bottom: 170, child: buildReaderWidget()),
             Positioned(bottom: 20, left: 0, right: 0, child: bottomView()),
           ],
         ),
@@ -217,31 +216,38 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
     );
   }
 
-  Stack buildReaderWidget() {
-    return Stack(
-      children: [
-        LyricsReader(
-          padding: EdgeInsets.symmetric(horizontal: 0),
-          model: lyricModel,
-          position: playProgress,
-          lyricUi: lyricUI,
-          playing: playing,
-          size: Size(MediaQuery.of(context).size.width,
-              MediaQuery.of(context).size.height * 0.5),
-          emptyBuilder: () => Center(
-            child: Text(
-              "No lyrics",
-              style: lyricUI.getOtherMainTextStyle(),
+  Container buildReaderWidget() {
+    return Container(
+      color: Colors.black26,
+      child: Stack(
+        children: [
+          LyricsReader(
+            padding: const EdgeInsets.symmetric(horizontal: 0),
+            model: lyricModel,
+            position: playProgress,
+            lyricUi: lyricUI,
+            playing: playing,
+            size: Size(MediaQuery.of(context).size.width,
+                MediaQuery.of(context).size.height * 0.3),
+            emptyBuilder: () => Center(
+              child: Text(
+                "No lyrics",
+                style: lyricUI.getOtherMainTextStyle(),
+              ),
             ),
-          ),
-        )
-      ],
+          )
+        ],
+      ),
     );
   }
 
   Widget backgroundImage() {
-    return Image.asset('assets/images/background.jpg',
-        width: double.infinity, height: double.infinity, fit: BoxFit.fill);
+    return Image.asset(
+      'assets/icons/bg2.jpg',
+      width: double.infinity,
+      height: double.infinity,
+      fit: BoxFit.cover,
+    );
   }
 
   Widget roomTitle() {
@@ -275,16 +281,16 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
         builder: (context, currentRole, _) {
           if (currentRole == ZegoLiveAudioRoomRole.host) {
             return Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 musicButton(),
-                const SizedBox(width: 20),
+                // const SizedBox(width: 20),
                 lockSeatButton(),
-                const SizedBox(width: 10),
+                // const SizedBox(width: 10),
                 requestMemberButton(),
-                const SizedBox(width: 10),
+                // const SizedBox(width: 10),
                 micorphoneButton(),
-                const SizedBox(width: 20),
+                // const SizedBox(width: 20),
               ],
             );
           } else if (currentRole == ZegoLiveAudioRoomRole.speaker) {
@@ -424,7 +430,10 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
       child: SizedBox(
         width: 40,
         height: 40,
-        child: Image.asset('assets/icons/top_close.png'),
+        child: Image.asset(
+          'assets/icons/top_close.png',
+          color: Colors.white,
+        ),
       ),
     );
   }

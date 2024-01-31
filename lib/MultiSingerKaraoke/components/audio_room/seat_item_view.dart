@@ -5,16 +5,17 @@ import 'package:star/MultiSingerKaraoke/internal/live_audio_room_manager.dart';
 
 import '../../internal/sdk/express/express_service.dart';
 
-
 class ZegoSeatItemView extends StatelessWidget {
-  const ZegoSeatItemView({super.key, required this.onPressed, required this.seatIndex});
+  const ZegoSeatItemView(
+      {super.key, required this.onPressed, required this.seatIndex});
   final int seatIndex;
   final void Function() onPressed;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ZegoSDKUser?>(
-      valueListenable: ZegoLiveAudioRoomManager().seatList[seatIndex].currentUser,
+      valueListenable:
+          ZegoLiveAudioRoomManager().seatList[seatIndex].currentUser,
       builder: (context, user, _) {
         if (user != null) {
           return userSeatView(user);
@@ -34,7 +35,7 @@ class ZegoSeatItemView extends StatelessWidget {
           const SizedBox(height: 5),
           Text(
             userInfo.userName,
-            style: const TextStyle(color: Colors.black, fontSize: 10),
+            style: const TextStyle(color: Colors.white, fontSize: 10),
             textAlign: TextAlign.center,
           ),
         ],
@@ -55,14 +56,16 @@ class ZegoSeatItemView extends StatelessWidget {
                 ? CachedNetworkImage(
                     imageUrl: avatarUrl,
                     fit: BoxFit.cover,
-                    progressIndicatorBuilder: (context, url, _) => const CupertinoActivityIndicator(),
+                    progressIndicatorBuilder: (context, url, _) =>
+                        const CupertinoActivityIndicator(color: Colors.white),
                     errorWidget: (context, url, error) => child!,
                   )
                 : child,
           );
         },
         child: Container(
-          decoration: const BoxDecoration(color: Colors.grey, border: Border(bottom: BorderSide.none)),
+          decoration: const BoxDecoration(
+              color: Colors.grey, border: Border(bottom: BorderSide.none)),
           child: Center(
             child: SizedBox(
               height: 20,
@@ -94,8 +97,10 @@ class ZegoSeatItemView extends StatelessWidget {
                 width: 60,
                 height: 60,
                 child: isLock
-                    ? Image.asset('assets/icons/seat_lock_icon.png', fit: BoxFit.fill)
-                    : Image.asset('assets/icons/seat_icon_normal.png', fit: BoxFit.fill),
+                    ? Image.asset('assets/icons/seat_lock_icon.png',
+                        fit: BoxFit.fill)
+                    : Image.asset('assets/icons/seat_icon_normal.png',
+                        fit: BoxFit.fill),
               ),
               const Text(''),
             ]),
