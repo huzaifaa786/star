@@ -26,6 +26,7 @@ class ZIMService {
   Map<String, String> userAvatarUrlMap = {};
   Map<String, String> userNameMap = {};
   MapNotifier<RoomRequest> roomRequestMapNoti = MapNotifier({});
+  MapNotifier<RoomRequest> messageMapNoti = MapNotifier({});
 
   ZIMUserInfo? currentZimUserInfo;
   String? currentRoomID;
@@ -34,6 +35,7 @@ class ZIMService {
     currentRoomID = null;
     roomAttributesMap.clear();
     roomRequestMapNoti.clear();
+    messageMapNoti.clear();
   }
 
   final connectionStateStreamCtrl =
@@ -44,6 +46,8 @@ class ZIMService {
       StreamController<ZIMServiceReceiveRoomCustomSignalingEvent>.broadcast();
   final incomingUserRequestReceivedStreamCtrl =
       StreamController<IncomingUserRequestReceivedEvent>.broadcast();
+  final incomingUserMessageReceivedStreamCtrl =
+      StreamController<IncomingUserMessageReceivedEvent>.broadcast();
   final incomingUserRequestCancelledStreamCtrl =
       StreamController<IncomingUserRequestCancelledEvent>.broadcast();
   final outgoingUserRequestAcceptedStreamCtrl =
@@ -84,6 +88,8 @@ class ZIMService {
       StreamController<OnInComingRoomRequestCancelledEvent>.broadcast();
   final onRoomCommandReceivedEventStreamCtrl =
       StreamController<OnRoomCommandReceivedEvent>.broadcast();
+  final onBroadcastMessageReceivedEventStreamCtrl =
+      StreamController<OnBroadcastMessageReceived>.broadcast();
 
   void initEventHandle() {
     ZIMEventHandler.onConnectionStateChanged = onConnectionStateChanged;
@@ -99,6 +105,7 @@ class ZIMService {
     ZIMEventHandler.onCallUserStateChanged = onCallUserStateChanged;
     ZIMEventHandler.onRoomAttributesUpdated = onRoomAttributesUpdated;
     ZIMEventHandler.onRoomAttributesBatchUpdated = onRoomAttributesBatchUpdated;
+    ZIMEventHandler.onBroadcastMessageReceived = onBroadcastMessageReceived;
   }
 
   void uninitEventHandle() {
@@ -106,6 +113,7 @@ class ZIMService {
     ZIMEventHandler.onRoomStateChanged = null;
     ZIMEventHandler.onRoomMemberLeft = null;
     ZIMEventHandler.onReceiveRoomMessage = null;
+    ZIMEventHandler.onBroadcastMessageReceived = null;
     ZIMEventHandler.onCallInvitationReceived = null;
     ZIMEventHandler.onCallInvitationCancelled = null;
     ZIMEventHandler.onCallInvitationAccepted = null;

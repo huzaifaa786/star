@@ -44,6 +44,7 @@ dependencies:
   flutter_downloader: ^1.11.6
   audioplayers: ^5.2.1
   cached_network_image: ^3.3.1
+  zego_uikit: ^2.18.3
 
 dev_dependencies:
   flutter_test:

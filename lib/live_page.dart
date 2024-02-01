@@ -63,9 +63,9 @@ class LivePageState extends State<LivePage> {
 
   var result;
 
+
   void initZego() async {
     // await ZegoExpressEngine.createEngineWithProfile(profile);
-
     // var parser = LyricsParser(lyricsContent);
     // final result = await parser.parse();
     // ZegoExpressEngine.instance;
@@ -382,7 +382,7 @@ class LivePageState extends State<LivePage> {
             controller: liveController,
             config: (widget.isHost
                 ? ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
-                : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience())
+                : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience())..inRoomMessageConfig = ZegoInRoomMessageConfig()
               ..takeSeatIndexWhenJoining =
                   widget.isHost ? getHostSeatIndex() : -1
               ..hostSeatIndexes = getLockSeatIndex()

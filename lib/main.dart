@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:star/MultiSingerKaraoke/login_page.dart';
 import 'package:star/constant.dart';
-import 'package:star/home_page.dart';
 import 'package:star/live_page.dart';
+import 'package:star/home_page.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:star/flutter_lyrics.dart';
 
 import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_audio_room.dart';
