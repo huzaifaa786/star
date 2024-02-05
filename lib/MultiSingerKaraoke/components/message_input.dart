@@ -1,13 +1,8 @@
 // Flutter imports:
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-// Project imports:
-import 'package:zego_uikit/src/components/defines.dart';
-import 'package:zego_uikit/src/components/internal/internal.dart';
-import 'package:zego_uikit/src/components/screen_util/screen_util.dart';
-import 'package:zego_uikit/src/components/widgets/widgets.dart';
-import 'package:zego_uikit/src/services/services.dart';
+import 'package:star/MultiSingerKaraoke/components/zego_icon_button.dart';
 
 /// @nodoc
 class ZegoInRoomMessageInput extends StatefulWidget {
@@ -25,6 +20,8 @@ class ZegoInRoomMessageInput extends StatefulWidget {
     this.enabled = true,
     this.autofocus = true,
     this.onSubmit,
+    this.controller,
+    this.onTap,
     this.valueNotifier,
     this.focusNotifier,
   }) : super(key: key);
@@ -43,6 +40,8 @@ class ZegoInRoomMessageInput extends StatefulWidget {
   final VoidCallback? onSubmit;
   final ValueNotifier<String>? valueNotifier;
   final ValueNotifier<bool>? focusNotifier;
+  final onTap;
+  final TextEditingController? controller;
 
   @override
   State<ZegoInRoomMessageInput> createState() => _ZegoInRoomMessageInputState();
@@ -50,7 +49,7 @@ class ZegoInRoomMessageInput extends StatefulWidget {
 
 /// @nodoc
 class _ZegoInRoomMessageInputState extends State<ZegoInRoomMessageInput> {
-  final TextEditingController textController = TextEditingController();
+  // final TextEditingController textController = TextEditingController();
   ValueNotifier<bool> isEmptyNotifier = ValueNotifier(true);
   var focusNode = FocusNode();
 
@@ -61,9 +60,9 @@ class _ZegoInRoomMessageInputState extends State<ZegoInRoomMessageInput> {
     focusNode.addListener(onFocusChange);
 
     if (widget.valueNotifier != null) {
-      textController.text = widget.valueNotifier!.value;
+      widget.controller!.text = widget.valueNotifier!.value;
 
-      isEmptyNotifier.value = textController.text.isEmpty;
+      isEmptyNotifier.value = widget.controller!.text.isEmpty;
     }
   }
 
@@ -83,20 +82,20 @@ class _ZegoInRoomMessageInputState extends State<ZegoInRoomMessageInput> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.zR, vertical: 15.zR),
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       color: widget.backgroundColor ?? const Color(0xff222222).withOpacity(0.8),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          minHeight: 90.zR,
+          minHeight:20,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(width: 10.zR),
+            SizedBox(width: 10),
             messageInput(),
-            SizedBox(width: 10.zR),
+            SizedBox(width: 10),
             sendButton(),
-            SizedBox(width: 10.zR),
+            SizedBox(width: 10),
           ],
         ),
       ),
@@ -109,25 +108,25 @@ class _ZegoInRoomMessageInputState extends State<ZegoInRoomMessageInput> {
         widget.cursorColor ?? const Color(0xffA653ff);
     final messageSendHintStyle = TextStyle(
       color: widget.textHintColor ?? const Color(0xffa4a4a4),
-      fontSize: 28.zR,
+      fontSize: 16,
       fontWeight: FontWeight.w400,
     );
     final messageSendInputStyle = TextStyle(
       color: widget.textColor ?? Colors.white,
-      fontSize: 28.zR,
+      fontSize: 18,
       fontWeight: FontWeight.w400,
     );
 
     return Expanded(
       child: Container(
-        height: 78.zR,
+        height: 58,
         decoration: BoxDecoration(
           color: widget.inputBackgroundColor ?? messageSendBgColor,
-          borderRadius: BorderRadius.circular(16.zR),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: TextField(
           enabled: widget.enabled,
-          keyboardType: TextInputType.multiline,
+          keyboardType: TextInputType.text,
           minLines: 1,
           maxLines: null,
           autofocus: widget.autofocus,
@@ -135,7 +134,7 @@ class _ZegoInRoomMessageInputState extends State<ZegoInRoomMessageInput> {
           inputFormatters: <TextInputFormatter>[
             LengthLimitingTextInputFormatter(400)
           ],
-          controller: textController,
+          controller: widget.controller,
           onChanged: (String inputMessage) {
             widget.valueNotifier?.value = inputMessage;
 
@@ -145,19 +144,19 @@ class _ZegoInRoomMessageInputState extends State<ZegoInRoomMessageInput> {
             }
           },
           textInputAction: TextInputAction.send,
-          onSubmitted: (message) => send(),
+          onSubmitted: (message) => widget.onTap,
           cursorColor: messageSendCursorColor,
-          cursorHeight: 30.zR,
-          cursorWidth: 3.zR,
+          cursorHeight: 20,
+          cursorWidth: 3,
           style: messageSendInputStyle,
           decoration: InputDecoration(
             hintText: widget.placeHolder,
             hintStyle: messageSendHintStyle,
             contentPadding: EdgeInsets.only(
-              left: 20.zR,
-              top: -5.zR,
-              right: 20.zR,
-              bottom: 15.zR,
+              left: 20,
+              top: 5,
+              right: 20,
+              bottom: 15,
             ),
             // isDense: true,
             border: InputBorder.none,
@@ -173,45 +172,20 @@ class _ZegoInRoomMessageInputState extends State<ZegoInRoomMessageInput> {
       builder: (context, bool isEmpty, Widget? child) {
         return ZegoTextIconButton(
           onPressed: () {
-            if (!isEmpty) send();
+            if (!isEmpty) {
+              widget.onTap;
+              widget.valueNotifier?.value = '';
+
+              widget.onSubmit?.call();
+            }
           },
-          icon: ButtonIcon(
-            icon: isEmpty
-                ? UIKitImage.asset(StyleIconUrls.iconSendDisable)
-                : UIKitImage.asset(StyleIconUrls.iconSend),
-            backgroundColor: widget.buttonColor,
-          ),
-          iconSize: Size(68.zR, 68.zR),
-          buttonSize: Size(72.zR, 72.zR),
+          icon: isEmpty
+              ? Image.asset('assets/icons/send_disable.png',height: 100, width: 100,color: Colors.grey,)
+              : Image.asset('assets/icons/send_disable.png',height: 100,width: 100,color: Colors.blue,),
+          iconSize: Size(50, 50),
+          buttonSize: Size(50, 50),
         );
       },
     );
-  }
-
-  void send() {
-    if (textController.text.isEmpty) {
-      ZegoLoggerService.logInfo(
-        'message is empty',
-        tag: 'uikit',
-        subTag: 'in room message input',
-      );
-      return;
-    }
-
-    if (widget.payloadAttributes?.isEmpty ?? true) {
-      ZegoUIKit().sendInRoomMessage(textController.text);
-    } else {
-      ZegoUIKit().sendInRoomMessage(
-        ZegoInRoomMessage.jsonBody(
-          message: textController.text,
-          attributes: widget.payloadAttributes!,
-        ),
-      );
-    }
-    textController.clear();
-
-    widget.valueNotifier?.value = '';
-
-    widget.onSubmit?.call();
   }
 }

@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:star/MultiSingerKaraoke/components/audio_room/seat_item_view.dart';
+import 'package:star/MultiSingerKaraoke/components/pop_up_manager.dart';
+import 'package:star/MultiSingerKaraoke/components/text_icon_button.dart';
 
 import 'package:star/MultiSingerKaraoke/components/zego_apply_cohost_list_page.dart';
 import 'package:star/MultiSingerKaraoke/internal/business/business_define.dart';
@@ -31,10 +33,12 @@ class MultiSingersKaraoke extends StatefulWidget {
 class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
   List<ZegoInRoomMessage> messages = [];
   List<StreamSubscription> subscriptions = [];
+  TextEditingController textEditingController = TextEditingController();
   String? currentRequestID;
   ValueNotifier<bool> isApplyStateNoti = ValueNotifier(false);
   ZegoInRoomMessageConfig? inRoomMessageConfig = ZegoInRoomMessageConfig();
   ZegoLiveAudioRoomSeatConfig? seatConfig = ZegoLiveAudioRoomSeatConfig();
+  final popUpManager = ZegoPopUpManager();
 
   // ********** LYRICS ****************
   int playProgress = 0;
@@ -78,18 +82,33 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
     loginRoom();
   }
 
-  void send(String message) {
+  send() {
     ZegoExpressEngine.instance
-        .sendBarrageMessage(widget.roomID, message)
+        .sendBarrageMessage(widget.roomID, textEditingController.text)
         .then((value) {
       if (value.errorCode == 0) {
+        final expressService = ZEGOSDKManager().expressService;
+        messages.add(ZegoInRoomMessage(
+            user: ZegoUser(expressService.currentUser!.userID,
+                expressService.currentUser!.userName),
+            message: textEditingController.text,
+            timestamp: DateTime.now().millisecondsSinceEpoch,
+            messageID: value.messageID));
+        textEditingController.clear();
+      
       } else {}
     });
   }
 
   void onIMreceiveMessage(
       String roomID, List<ZegoBarrageMessageInfo> messageList) async {
-    print(messageList.first.message);
+    for (var element in messageList) {
+      messages.add(ZegoInRoomMessage(
+          user: element.fromUser,
+          message: element.message,
+          timestamp: element.sendTime,
+          messageID: element.message));
+    }
   }
 
   void loginRoom() {
@@ -310,7 +329,7 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 // message(),
-
+                messageInput(),
                 musicButton(),
                 // const SizedBox(width: 20),
                 lockSeatButton(),
@@ -318,7 +337,7 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
                 requestMemberButton(),
                 // const SizedBox(width: 10),
                 micorphoneButton(),
-                const SizedBox(width: 20),
+                // const SizedBox(width: 20),
               ],
             );
           } else if (currentRole == ZegoLiveAudioRoomRole.speaker) {
@@ -423,10 +442,24 @@ class _MultiSingersKaraokeState extends State<MultiSingersKaraoke> {
     return ElevatedButton(
       onPressed: () {
         if (!playing) {
-          send('GGGGGGGGD');
+          playSong();
         }
       },
       child: playing ? const Icon(Icons.pause) : const Icon(Icons.play_arrow),
+    );
+  }
+
+  Widget messageInput() {
+    return ZegoInRoomMessageInputBoardButton(
+      textEditingController: textEditingController,
+      onTap: send(),
+      rootNavigator: true,
+      onSheetPopUp: (int key) {
+        popUpManager.addAPopUpSheet(key);
+      },
+      onSheetPop: (int key) {
+        popUpManager.removeAPopUpSheet(key);
+      },
     );
   }
 

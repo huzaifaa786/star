@@ -20,7 +20,7 @@ enum ZegoInRoomMessageState {
 /// in-room message
 class ZegoInRoomMessage {
   /// If the local message sending fails, then the message ID at this time is unreliable, and is a negative sequential value.
-  int messageID;
+  String messageID;
 
   /// message sender.
   ZegoUser user;
@@ -56,12 +56,12 @@ class ZegoInRoomMessage {
     }
   }
 
-  ZegoInRoomMessage.fromBroadcastMessage(ZegoBroadcastMessageInfo message)
+  ZegoInRoomMessage.fromBroadcastMessage(ZegoBarrageMessageInfo message)
       : this(
           user: message.fromUser,
           message: message.message,
           timestamp: message.sendTime,
-          messageID: message.messageID,
+          messageID: message.messageID.toString(),
         );
 
   static String get messageKey => 'msg';

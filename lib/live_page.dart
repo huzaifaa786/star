@@ -63,7 +63,6 @@ class LivePageState extends State<LivePage> {
 
   var result;
 
-
   void initZego() async {
     // await ZegoExpressEngine.createEngineWithProfile(profile);
     // var parser = LyricsParser(lyricsContent);
@@ -382,7 +381,8 @@ class LivePageState extends State<LivePage> {
             controller: liveController,
             config: (widget.isHost
                 ? ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
-                : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience())..inRoomMessageConfig = ZegoInRoomMessageConfig()
+                : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience())
+              ..inRoomMessageConfig = ZegoInRoomMessageConfig()
               ..takeSeatIndexWhenJoining =
                   widget.isHost ? getHostSeatIndex() : -1
               ..hostSeatIndexes = getLockSeatIndex()
@@ -494,15 +494,16 @@ class LivePageState extends State<LivePage> {
   }
 
   Widget foreground(BoxConstraints constraints) {
-    return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-      MaterialButton(
-        onPressed: () {
-          playSong();
-        },
-        child: Text('Play'),
-      ),
-      widget.isHost ? buildReaderWidget() : buildAudienceReaderWidget()
-    ]);
+    return Container();
+    // return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+    //   MaterialButton(
+    //     onPressed: () {
+    //       playSong();
+    //     },
+    //     child: Text('Play'),
+    //   ),
+    //   // widget.isHost ? buildReaderWidget() : buildAudienceReaderWidget()
+    // ]);
     // return Positioned(
     //     top: 290,
     //     right: 10,
